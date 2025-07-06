@@ -1,0 +1,25 @@
+# Guess the songs - Rules
+```
+A song will be played by Le Voice
+Your goal is to find 
+- Author of the song             + 1 point
+- Title of the song 	         + 1 point
+- Who submitted the song to me   + 3 points
+- Extra submitter guess          + 3 points if right - 3 points if wrong
+
+A song MIGHT have multiple submitter! but if your guess is wrong, you get -3 points per wrong guesses
+
+-------
+
+- How to play:
+The first half of the song's playtime will be hidden by André's magnificent art,after which the YouTube video will be revealed (could help you guess better)
+
+- Guessing multiple submitter
+if your guess is wrong you will not lose points BUT a song COULD have multiple submitters !
+
+- Example guesses
+Here is the guess template you will use to answer : (each part is separated with dashes - )
+||Yonkagor - Circus Hop - Komider|| 
+If you don't know an answer but still want to submit it, add a placeholder character as an answer 
+"||? - ? - Le Voice" or "||X - X - SkyfallStar||"
+```
