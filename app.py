@@ -8,7 +8,7 @@ from flask_session import Session
 
 # TODO: understand how to properly host ngrok
 # from waitress import serve
-# from flask_ngrok import run_with_ngrok
+from flask_ngrok import run_with_ngrok
 
 # load environment variables
 dotenv.load_dotenv(dotenv.find_dotenv())
@@ -36,11 +36,9 @@ def room():
     if request.method == 'POST':
         username = request.form['username']
 
-        print(username)
-
         # Store the data in session
         session['username'] = username
-        session['room'] = 'room1'
+        session['room'] = 'default'
         return render_template('./room.html', session=session)
     else:
         if session.get('room') is not None:
@@ -77,4 +75,5 @@ def left(message):
 if __name__ == '__main__':
     # run_with_ngrok(app)
     # serve(app, host=environ.get('HOST', '0.0.0.0'), port=int(environ.get("PORT", 5000)))
-    app.run(host=environ.get('HOST', '0.0.0.0'), port=int(environ.get("PORT", 5000)))
+    # app.run(host=environ.get('HOST', '0.0.0.0'), port=int(environ.get("PORT", 5000)))
+    app.run()

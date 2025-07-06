@@ -31,6 +31,9 @@
                 $('#okak').click(function(e) {
                         socket.emit('text', {msg: 'okak'});
                 });
+                $('#wowie').click(function(e) {
+                    socket.emit('text', {msg: 'wowie'});
+                });
             });
             function leave_room() {
                 socket.emit('left', {}, function() {
@@ -46,14 +49,16 @@
     
     <div class="roomwindow">
       <h2 >Le Voice's game</h2>
-      <h2>Room : {{session['room']}}</h2><br>
+<!--        maybe add for future (different topics / no lyrics / only subset of people e.t.c) -->
+<!--      <h2>Room : {{session['room']}}</h2><br>-->
       <textarea id="room" cols="70" rows="10" placeholder="No messages yet. Start one..."></textarea><br /><br />
       <input type="text" id="text" size="60" placeholder="Enter your message here" />
       <button type="button" id="send" class="btn btn-success">SEND</button><br /><br />
 
       <center>
           <button type="button" class="btn btn-danger" onclick=leave_room()>Leave this room</button>
-          <button type="button" id="okak" class="btn btn-danger">okak</button><br /><br />
+          <button type="button" id="okak" class="btn btn-danger">okak</button>
+          <button type="button" id="wowie" class="btn btn-danger">wowie</button><br /><br />
       </center>
 
     </div>
