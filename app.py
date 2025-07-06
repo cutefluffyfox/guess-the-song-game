@@ -74,6 +74,4 @@ def left(message):
 
 if __name__ == '__main__':
     # run_with_ngrok(app)
-    # serve(app, host=environ.get('HOST', '0.0.0.0'), port=int(environ.get("PORT", 5000)))
-    # app.run(host=environ.get('HOST', '0.0.0.0'), port=int(environ.get("PORT", 5000)))
     app.run()
