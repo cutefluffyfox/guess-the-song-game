@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Le Voice room</title>
+    <!--Link to CSS -->
+    <link href="../static/bootstrap.min.css" rel="stylesheet" />
+    <link href="../static/style.css" rel="stylesheet" />
+
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+        <script type="text/javascript" src="//cdn.socket.io/4.4.1/socket.io.min.js"></script>
+        <script type="text/javascript" charset="utf-8">
+            var socket;
+            $(document).ready(function(){
+                socket = io.connect('http://' + document.domain + ':' + location.port + '/room');
+                socket.on('connect', function() {
+                    socket.emit('join', {});
+                });
+                socket.on('status', function(data) {
+                    $('#room').val($('#room').val() + '<' + data.msg + '>\n');
+                    $('#room').scrollTop($('#room')[0].scrollHeight);
+                });
+                socket.on('message', function(data) {
+                    $('#room').val($('#room').val() + data.msg + '\n');
+                    $('#room').scrollTop($('#room')[0].scrollHeight);
+                });
+                $('#send').click(function(e) {
+                        text = $('#text').val();
+                        $('#text').val('');
+                        socket.emit('text', {msg: text});
+                });
+                $('#okak').click(function(e) {
+                        socket.emit('text', {msg: 'okak'});
+                });
+            });
+            function leave_room() {
+                socket.emit('left', {}, function() {
+                    socket.disconnect();
+                    // go back to the login page
+                    window.location.href = "{{ url_for('index') }}";
+                });
+            }
+        </script>
+  </head>
+
+  <body class="text-center">
+    
+    <div class="roomwindow">
+      <h2 >Le Voice's game</h2>
+      <h2>Room : {{session['room']}}</h2><br>
+      <textarea id="room" cols="70" rows="10" placeholder="No messages yet. Start one..."></textarea><br /><br />
+      <input type="text" id="text" size="60" placeholder="Enter your message here" />
+      <button type="button" id="send" class="btn btn-success">SEND</button><br /><br />
+
+      <center>
+          <button type="button" class="btn btn-danger" onclick=leave_room()>Leave this room</button>
+          <button type="button" id="okak" class="btn btn-danger">okak</button><br /><br />
+      </center>
+
+    </div>
+  </body>
+</html>

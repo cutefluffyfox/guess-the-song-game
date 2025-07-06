@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>Le Voice's game</title>
+  <!--Link to CSS -->
+  <link href="../static/bootstrap.min.css" rel="stylesheet">
+  <link href="../static/style.css" rel="stylesheet">
+</head>
+
+<body class="text-center">
+  <form class="form-signin" action="{{url_for('room')}}" method="POST">
+    <h1 class="h2 mb-3 font-weight-normal">Guess the song lobby</h1><br><br>
+    <input type="text" id="username" name="username" class="form-control" placeholder="username" required autofocus><br>
+    <button class="btn btn-lg btn-primary btn-block" value="submit">Join game</button>
+  </form>
+</body>
+
+</html>
