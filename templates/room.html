@@ -60,6 +60,11 @@
     <div align="center" style="width: 60%; margin: 0px auto;">
 
       <h2>Le Voice's game</h2>
+
+      <video id="remoteVideo" autoplay></video>
+      <a href="{{ url_for('video_feed') }}" target="_self">Link to Video Feed</a>
+      <script src="{{ url_for('static', filename='streaming.js') }}"></script>
+      <br><br>
 <!--        maybe add for future (different topics / no lyrics / only subset of people e.t.c) -->
 <!--        <h2>Room : {{session['room']}}</h2><br>-->
       <textarea id="room" cols="70" rows="10" placeholder="No messages yet. Start one..."></textarea><br/><br/>

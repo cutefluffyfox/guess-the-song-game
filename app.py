@@ -1,10 +1,12 @@
 from os import environ
 
 import dotenv
-from flask import Flask, render_template, redirect, request, url_for, session
+from flask import Flask, render_template, redirect, request, url_for, session, Response
 from datetime import timedelta
 from flask_socketio import SocketIO, join_room, leave_room, emit
 from flask_session import Session
+
+from scripts.camera import Camera
 
 # TODO: understand how to properly host ngrok
 # from waitress import serve
@@ -70,6 +72,25 @@ def left(message):
     session.clear()
     emit('status', {'msg': f'{username} has left the room'}, to=room)
 
+
+def gen(camera):
+    """Video streaming generator function."""
+    yield b'--frame\r\n'
+    while True:
+        frame = camera.get_frame()
+        yield b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n--frame\r\n'
+
+
+def make_frame_generator(camera):
+    while True:
+        frame = camera.get_frame()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(make_frame_generator(Camera()), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 if __name__ == '__main__':
