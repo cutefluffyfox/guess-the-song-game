@@ -11,7 +11,7 @@
       <script type="text/javascript" charset="utf-8">
           var socket;
           $(document).ready(function(){
-              socket = io.connect('http://' + document.domain + ':' + location.port + '/room');
+              socket = io.connect('https://' + document.domain + ':' + location.port + '/room');
               socket.on('connect', function() {
                   socket.emit('join', {});
               });
@@ -60,9 +60,14 @@
     <div align="center" style="width: 60%; margin: 0px auto;">
 
       <h2>Le Voice's game</h2>
+      <br><br>
 <!--        maybe add for future (different topics / no lyrics / only subset of people e.t.c) -->
 <!--        <h2>Room : {{session['room']}}</h2><br>-->
-      <textarea id="room" cols="70" rows="10" placeholder="No messages yet. Start one..."></textarea><br/><br/>
+      <div>
+        <iframe src="https://vdo.ninja/?view=C4dTWJh" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope;"></iframe>
+        <textarea id="room" cols="70" rows="10" placeholder="No messages yet. Start one..." readonly></textarea>
+      </div>
+      <br/><br/>
       <input type="text" id="text" size="60" placeholder="Enter your message here">
       <button type="button" id="send" class="btn btn-success">SEND</button><br/><br/>
 

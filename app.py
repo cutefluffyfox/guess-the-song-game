@@ -6,10 +6,6 @@ from datetime import timedelta
 from flask_socketio import SocketIO, join_room, leave_room, emit
 from flask_session import Session
 
-# TODO: understand how to properly host ngrok
-# from waitress import serve
-# from flask_ngrok import run_with_ngrok
-
 # load environment variables
 dotenv.load_dotenv(dotenv.find_dotenv())
 
@@ -22,6 +18,8 @@ app.debug = bool(int(environ['DEBUG']))
 app.config['SECRET_KEY'] = environ['FLASK_SECRET_KEY']
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=3)
+
+DEBUG = bool(environ.get('DEBUG', 0))
 
 Session(app)
 
@@ -71,7 +69,5 @@ def left(message):
     emit('status', {'msg': f'{username} has left the room'}, to=room)
 
 
-
 if __name__ == '__main__':
-    # run_with_ngrok(app)
-    app.run()
+    socketio.run(app, debug=DEBUG, host=environ.get('HOST', '127.0.0.1'), port=int(environ.get('PORT', 8080)), allow_unsafe_werkzeug=DEBUG)
