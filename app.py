@@ -1,16 +1,10 @@
 from os import environ
 
 import dotenv
-from flask import Flask, render_template, redirect, request, url_for, session, Response
+from flask import Flask, render_template, redirect, request, url_for, session
 from datetime import timedelta
 from flask_socketio import SocketIO, join_room, leave_room, emit
 from flask_session import Session
-
-from scripts.camera import Camera
-
-# TODO: understand how to properly host ngrok
-# from waitress import serve
-# from flask_ngrok import run_with_ngrok
 
 # load environment variables
 dotenv.load_dotenv(dotenv.find_dotenv())
@@ -24,6 +18,8 @@ app.debug = bool(int(environ['DEBUG']))
 app.config['SECRET_KEY'] = environ['FLASK_SECRET_KEY']
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=3)
+
+DEBUG = bool(environ.get('DEBUG', 0))
 
 Session(app)
 
@@ -73,18 +69,5 @@ def left(message):
     emit('status', {'msg': f'{username} has left the room'}, to=room)
 
 
-def make_frame_generator(camera):
-    while True:
-        frame = camera.get_frame()
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-
-
-@app.route('/video_feed')
-def video_feed():
-    return Response(make_frame_generator(Camera(int(environ.get('OBS_CAM_IDX', 0)))), mimetype='multipart/x-mixed-replace; boundary=frame')
-
-
 if __name__ == '__main__':
-    # run_with_ngrok(app)
-    app.run()
+    socketio.run(app, debug=DEBUG, host=environ.get('HOST', '127.0.0.1'), port=int(environ.get('PORT', 8080)), allow_unsafe_werkzeug=DEBUG)
