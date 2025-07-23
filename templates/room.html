@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <title>Le Voice room</title>
+    <link rel="icon" type="image/x-icon" href="../static/images/icon.png">
     <!--Link to CSS -->
     <link href="../static/bootstrap.min.css" rel="stylesheet" />
     <link href="../static/style.css" rel="stylesheet" />
@@ -11,17 +12,28 @@
       <script type="text/javascript" charset="utf-8">
           var socket;
           $(document).ready(function(){
-              socket = io.connect('https://' + document.domain + ':' + location.port + '/room');
+              socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + '/room');
               socket.on('connect', function() {
                   socket.emit('join', {});
               });
+              socket.on('disconnect', function(data) {
+                socket.emit('left', {});
+              });
               socket.on('status', function(data) {
-                  $('#room').val($('#room').val() + '<' + data.msg + '>\n');
-                  $('#room').scrollTop($('#room')[0].scrollHeight);
+                  $('#chat').val($('#chat').val() + '<' + data.msg + '>\n');
+                  $('#chat').scrollTop($('#chat')[0].scrollHeight);
               });
               socket.on('message', function(data) {
-                  $('#room').val($('#room').val() + data.msg + '\n');
-                  $('#room').scrollTop($('#room')[0].scrollHeight);
+                  $('#chat').val($('#chat').val() + data.msg + '\n');
+                  $('#chat').scrollTop($('#chat')[0].scrollHeight);
+              });
+              socket.on('score', function(data) {
+                  $('#leaderboard').empty();
+                  for (const [key, value] of Object.entries(data)) {
+                    console.log(key, value);
+                     $('#leaderboard').prepend("<p>Username: " + key + ". Score: " + value + "</p>");
+                     continue;
+                  }
               });
               $('#send').click(function(e) {
                   text = $('#text').val();
@@ -55,26 +67,33 @@
       </script>
   </head>
 
-  <body class="text-center">
-    
-    <div align="center" style="width: 60%; margin: 0px auto;">
+<body class="text-center">
 
-      <h2>Le Voice's game</h2>
-      <br><br>
-<!--        maybe add for future (different topics / no lyrics / only subset of people e.t.c) -->
-<!--        <h2>Room : {{session['room']}}</h2><br>-->
-      <div>
-        <iframe src="https://vdo.ninja/?view=C4dTWJh" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope;"></iframe>
-        <textarea id="room" cols="70" rows="10" placeholder="No messages yet. Start one..." readonly></textarea>
-      </div>
-      <br/><br/>
-      <input type="text" id="text" size="60" placeholder="Enter your message here">
-      <button type="button" id="send" class="btn btn-success">SEND</button><br/><br/>
 
-      <button type="button" class="btn btn-danger" onclick=leave_room()>Leave this room</button>
-      <button type="button" id="okak" class="btn btn-danger">okak</button>
-      <button type="button" id="wowie" class="btn btn-danger">wowie</button><br/><br/>
-
+<div>
+  <div class="row">
+    <div class="col">
+      drop the title
     </div>
+  </div>
+
+  <div class="row">
+    <div class="col-2" style="min-height: 80vh;" id="leaderboard">
+      Waiting for socketio to establish connection...
+    </div>
+    <div class="col-8" style="min-height: 80vh;">
+      <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=-0.004017949104309083%2C51.47612752641776%2C0.00030577182769775396%2C51.478569861898606&amp;layer=mapnik"></iframe>
+<!--      <iframe src="https://vdo.ninja/?view=XQHhT4T "></iframe>-->
+    </div>
+    <div class="col-2" style="min-height: 80vh;">
+      <div class="row h-95"><textarea id="chat" placeholder="Waiting for socketio to establish connection..." readonly style="resize: none;"></textarea></div>
+      <div class="row h-5">
+        <div class="w-80"><input class="full" type="text" id="text" placeholder="Enter your message here" autocomplete="off"></div>
+        <div class="w-20"><button class="full" type="button" id="send">send</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
   </body>
 </html>

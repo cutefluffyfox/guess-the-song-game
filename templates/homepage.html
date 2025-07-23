@@ -6,15 +6,19 @@
   <!--Link to CSS -->
   <link href="../static/bootstrap.min.css" rel="stylesheet">
   <link href="../static/style.css" rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="../static/images/icon.png">
 
   <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
 </head>
 
 <body class="text-center">
   <form class="form-signin" action="{{url_for('room')}}" method="POST">
-    <h1 class="h2 mb-3 font-weight-normal">Guess the song lobby</h1><br><br>
-    <input type="text" id="username" name="username" class="form-control" placeholder="username" required autofocus><br>
-    <button class="btn btn-lg btn-primary btn-block" value="submit">Join game</button>
+    <h2 class="h2 mb-0 font-weight-normal text-shadow animation-top-to-bottom">LeVoice's</h2>
+    <h1 class="h1 mb-5 font-weight-normal text-shadow animation-bottom-to-top" style="margin-top:-17px">Guess The Song!</h1>
+	<h3 class="h3 mb-5 mt-5 font-weight-normal">Welcome to the lobby!</h3>
+	<h4 class="h4 mb-4 mt-5 font-weight-normal">Enter Username:</h4>
+    <input type="text" id="username" name="username" class="form-control item-text" placeholder="username" required autofocus><br>
+    <button class="btn btn-lg btn-primary btn-block join-lobby" value="submit">Join Lobby</button>
   </form>
 </body>
 

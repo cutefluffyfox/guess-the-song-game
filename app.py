@@ -20,8 +20,16 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=3)
 
 DEBUG = bool(environ.get('DEBUG', 0))
+LEADERBOARD = dict()
 
 Session(app)
+
+
+def publish_leaderboard(to: str):
+    # output = [(key, item) for (key, item) in LEADERBOARD.items()]
+    # emit('score', {'leaderboard': output}, to=to)
+    emit('score', LEADERBOARD, to=to)
+
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
@@ -46,11 +54,18 @@ def room():
 
 
 @socketio.on('join', namespace='/room')
-def join(message):
+def join(*args):
+    global LEADERBOARD
+
     room = session.get('room')
     username = session.get('username')
     join_room(room)
+
+    from random import randint
+    LEADERBOARD[username] = LEADERBOARD.get(username, randint(0, 69))
+
     emit('status', {'msg': f'welcome in game {username}'}, to=room)
+    publish_leaderboard(to=room)
 
 
 @socketio.on('text', namespace='/room')
@@ -61,12 +76,18 @@ def text(message):
 
 
 @socketio.on('left', namespace='/room')
-def left(message):
+@socketio.on('disconnect', namespace='/room')
+def left(*args):
+    global LEADERBOARD
+
     room = session.get('room')
     username = session.get('username')
     leave_room(room)
+    if LEADERBOARD.get(username):
+        del LEADERBOARD[username]
     session.clear()
     emit('status', {'msg': f'{username} has left the room'}, to=room)
+    publish_leaderboard(to=room)
 
 
 if __name__ == '__main__':
