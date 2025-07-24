@@ -205,3 +205,12 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Flask sessions
+flask_session/
+
+# Sandbox files
+deleteme/
+
+# Pycharm
+.idea/

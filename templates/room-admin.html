@@ -31,16 +31,16 @@
                   $('#leaderboard').empty();
                   for (const [key, value] of Object.entries(data)) {
                      $('#leaderboard').prepend("<p>Username: " + key + ". Score: " + value + "</p>");
-                     continue;
                   }
+
+<!--                  $('#admin-leaderboard').empty();-->
+                  $('#admin-leaderboard').val(JSON.stringify(data, null, 2));
               });
               socket.on('result', function(data) {
                   result_type = data["type"];
                   result_val = data["result"];
                   if (result_type == "submitter") $('#submitter-score').html(result_val);
                   if (result_type == "author") $('#author-score').html(result_val);
-
-                  console.log(data);
               });
               socket.on('stream-change', function(data) {
                   link = data["link"];
@@ -51,6 +51,19 @@
                   if (!text) return;
                   $('#text').val('');
                   socket.emit('text', {msg: text});
+              });
+              $('#change-leaderboard').click(function(e) {
+                  text = $('#admin-leaderboard').val();
+                  if (!text) return;
+                  socket.emit('leaderboard-change', {data: text});
+              });
+              $('#change-stream').click(function(e) {
+                  text = $('#stream-link').val();
+                  if (!text) return;
+                  socket.emit('stream-change', {link: text});
+              });
+              $('#default-stream').click(function(e) {
+                  socket.emit('stream-change', {link: "default"});
               });
               $('#author-submit').click(function(e) {
                   text = $('#author-input').val();
@@ -95,9 +108,11 @@
 
 <div>
   <div class="row">
-    <div class="col">
-      drop the title
-    </div>
+      <div class="w-20"></div>
+      <div class="w-50"><input class="full" type="text" id="stream-link" placeholder="Place stream link: https://vdo.ninja/" autocomplete="off"></div>
+      <div class="w-5"><button class="full" type="button" id="change-stream">start</button></div>
+      <div class="w-5"><button class="full" type="button" id="default-stream">stop</button></div>
+      <div class="w-20"></div>
   </div>
 
   <div class="row">
@@ -109,22 +124,11 @@
         <iframe src="" id="stream" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope;"></iframe>
       </div>
       <div class="row h-20">
-        <div class="col-2"></div>
-        <div class="col-8">
-
-          <div class="row h-50">
-            <div class="w-80"><input class="full" type="text" id="author-input" placeholder="Enter author & song name " autocomplete="off"></div>
-            <div class="w-10"><button class="full" type="button" id="author-submit">send</button></div>
-            <div class="w-10"><div class="full center" id="author-score">?</div></div>
-          </div>
-          <div class="row h-50">
-            <div class="w-80"><input class="full" type="text" id="submitter-input" placeholder="Enter submitter" autocomplete="off"></div>
-            <div class="w-10"><button class="full" type="button" id="submitter-submit">send</button></div>
-            <div class="w-10"><div class="full center" id="submitter-score">?</div></div>
-          </div>
-
+        <div class="col-4">
+          <div class="row h-20"><button class="full" type="button" id="change-leaderboard">change leaderboard</button></div>
+          <div class="row h-80"><textarea class="full" id="admin-leaderboard" placeholder="waiting for leaderboard..." autocomplete="off"></textarea></div>
         </div>
-        <div class="col-2"></div>
+        <div class="col-8" id="submission-queue">submissions queue here</div>
       </div>
     </div>
     <div class="col-2" style="min-height: 80vh;">
