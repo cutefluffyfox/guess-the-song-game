@@ -111,6 +111,7 @@ def prediction(message):
         score = randint(0, 4)
         LEADERBOARD[username] += score
         publish_leaderboard(to=room)
+        emit('prediction-queue', {'username': username, 'song': message.get('author', '<none>'), 'submitter': message.get('submitter', '<none>')}, to=ADMIN)
         emit('result', {'type': message['type'], 'result': f"+{score}"}, to=username)
 
 
@@ -126,7 +127,7 @@ def join(*args):
     if username != ADMIN:
         from random import randint
         LEADERBOARD[username] = LEADERBOARD.get(username, randint(0, 69))
-        emit('status', {'msg': f'welcome in game {username}'}, to=room)
+    emit('status', {'msg': f'welcome in game {username if username != ADMIN else "[admin]"}'}, to=room)
     publish_leaderboard(to=room)
     publish_link(to=room)
 
@@ -143,8 +144,7 @@ def left(*args):
     if LEADERBOARD.get(username):
         del LEADERBOARD[username]
     session.clear()
-    if username != ADMIN:
-        emit('status', {'msg': f'{username} has left the room'}, to=room)
+    emit('status', {'msg': f'{username if username != ADMIN else "[admin]"} has left the room'}, to=room)
     publish_leaderboard(to=room)
     publish_link(to=room)
 

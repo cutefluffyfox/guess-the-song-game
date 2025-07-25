@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Le Voice room</title>
+    <title>Le Voice nursery</title>
     <link rel="icon" type="image/x-icon" href="../static/images/icon.png">
     <!--Link to CSS -->
     <link href="../static/bootstrap.min.css" rel="stylesheet" />
@@ -53,16 +53,20 @@
                   socket.emit('text', {msg: text});
               });
               $('#author-submit').click(function(e) {
-                  text = $('#author-input').val();
+
                   if (!text) return;
                   $('#author-input').val('');
                   socket.emit('prediction', {prediction: text, type: "author"});
               });
-              $('#submitter-submit').click(function(e) {
-                  text = $('#submitter-input').val();
-                  if (!text) return;
+              $('#prediction-submit').click(function(e) {
+                  submitter = $('#submitter-input').val();
+                  author = $('#author-input').val();
+                  if (!submitter || !author) {
+                      alert("Both submitter and author must be present :3");
+                  };
                   $('#submitter-input').val('');
-                  socket.emit('prediction', {prediction: text, type: "submitter"});
+                  $('#author-input').val('');
+                  socket.emit('prediction', {author: author, submitter: submitter});
               });
               $('#okak').click(function(e) {
                   socket.emit('text', {msg: 'okak'});
@@ -112,16 +116,9 @@
         <div class="col-2"></div>
         <div class="col-8">
 
-          <div class="row h-50">
-            <div class="w-80"><input class="full" type="text" id="author-input" placeholder="Enter author & song name " autocomplete="off"></div>
-            <div class="w-10"><button class="full" type="button" id="author-submit">send</button></div>
-            <div class="w-10"><div class="full center" id="author-score">?</div></div>
-          </div>
-          <div class="row h-50">
-            <div class="w-80"><input class="full" type="text" id="submitter-input" placeholder="Enter submitter" autocomplete="off"></div>
-            <div class="w-10"><button class="full" type="button" id="submitter-submit">send</button></div>
-            <div class="w-10"><div class="full center" id="submitter-score">?</div></div>
-          </div>
+          <div class="row h-40"><input class="full" type="text" id="author-input" placeholder="Enter author & song name " autocomplete="off"></div>
+          <div class="row h-40"><input class="full" type="text" id="submitter-input" placeholder="Enter submitter" autocomplete="off"></div>
+          <div class="row h-20"><button class="full" type="button" id="prediction-submit">send</button></div>
 
         </div>
         <div class="col-2"></div>
