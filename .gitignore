@@ -214,3 +214,6 @@ deleteme/
 
 # Pycharm
 .idea/
+
+# Run files
+run.bat

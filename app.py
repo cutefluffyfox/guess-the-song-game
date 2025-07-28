@@ -150,4 +150,10 @@ def left(*args):
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=DEBUG, host=environ.get('HOST', '127.0.0.1'), port=int(environ.get('PORT', 8080)), allow_unsafe_werkzeug=DEBUG)
+    socketio.run(
+        app,
+        debug=bool(environ.get('DEBUG', False)),
+        host=environ.get('HOST', '127.0.0.1'),
+        port=int(environ.get('PORT', 8080)),
+        allow_unsafe_werkzeug=True,
+    )
