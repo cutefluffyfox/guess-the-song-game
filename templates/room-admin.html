@@ -116,9 +116,13 @@
   </div>
 
   <div class="row">
-    <div class="col-2" style="min-height: 80vh;" id="leaderboard">
-      Waiting for socketio to establish connection...
+    <div class="col-2" style="min-height: 80vh;">
+      <div id="leaderboard">Waiting for socketio to establish connection...</div>
+      <div><button type="button" class="btn btn-danger" onclick=leave_room()>Leave the game</button></div>
     </div>
+<!--    <div class="col-2" style="min-height: 80vh;" id="leaderboard">-->
+<!--      Waiting for socketio to establish connection...-->
+<!--    </div>-->
     <div class="col-8" style="min-height: 80vh;">
       <div class="row h-80">
         <iframe src="" id="stream" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope;"></iframe>
