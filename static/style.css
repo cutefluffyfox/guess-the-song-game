@@ -160,8 +160,14 @@ textarea {
 .h-80 {
     height: 80%;
 }
+.h-60 {
+    height: 60%;
+}
 .h-50 {
     height: 50%;
+}
+.h-35 {
+    height: 35%;
 }
 .h-20 {
     height: 20%;

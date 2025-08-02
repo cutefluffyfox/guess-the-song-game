@@ -1,10 +1,14 @@
 from os import environ
+from collections import defaultdict
 
 import dotenv
 from flask import Flask, render_template, redirect, request, url_for, session
 from datetime import timedelta
 from flask_socketio import SocketIO, join_room, leave_room, emit
 from flask_session import Session
+
+from scripts.game_rules import DEFAULT_IFRAME_LINK
+from scripts import game
 
 # load environment variables
 dotenv.load_dotenv(dotenv.find_dotenv())
@@ -23,20 +27,17 @@ DEBUG = bool(environ.get('DEBUG', 0))
 ADMIN = environ['ADMIN_USERNAME']
 
 # game-related global variables
-LEADERBOARD = dict()
-# DEFAULT_LINK = 'https://sketchfab.com/models/befbb2c422fc4b92aecae8c5114967e9/embed?autostart=1&internal=1&tracking=0&ui_infos=0&ui_snapshots=1&ui_stop=0&ui_watermark=0'
-DEFAULT_LINK = 'https://www.openstreetmap.org/export/embed.html?bbox=-0.004017949104309083%2C51.47612752641776%2C0.00030577182769775396%2C51.478569861898606&amp;layer=mapnik'
-STREAM_LINK = DEFAULT_LINK
+GAME = game.Game('main', throw_exceptions=False)
 
 Session(app)
 
 
 def publish_leaderboard(to: str):
-    emit('score', LEADERBOARD, to=to)
+    emit('score', GAME.get_leaderboard(), to=to)
 
 
 def publish_link(to: str):
-    emit('stream-change', {'link': STREAM_LINK}, to=to)
+    emit('stream-change', {'link': GAME.stream_url}, to=to)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -72,21 +73,24 @@ def text(message):
 
 @socketio.on('leaderboard-change', namespace='/room')
 def leaderboard_change(message):
-    global LEADERBOARD
+    global GAME
 
     room = session.get('room')
     username = session.get('username')
     if username != ADMIN:
         return
-    template_leaderboard = eval(message['data'])
-    if template_leaderboard:
-        LEADERBOARD = template_leaderboard
-        publish_leaderboard(to=room)
+    try:
+        template_leaderboard = eval(message['data'])
+        if isinstance(template_leaderboard, dict):
+            GAME.set_leaderboard(template_leaderboard)
+            publish_leaderboard(to=room)
+    except Exception as ex:  # if formatting has failed
+        pass
 
 
 @socketio.on('stream-change', namespace='/room')
 def stream_change(message):
-    global STREAM_LINK
+    global GAME
 
     room = session.get('room')
     username = session.get('username')
@@ -95,38 +99,43 @@ def stream_change(message):
         return
     link = message['link'].strip()
     if link == 'default':
-        STREAM_LINK = DEFAULT_LINK
+        GAME.stream_url = DEFAULT_IFRAME_LINK
     elif link.startswith('https://'):
-        STREAM_LINK = link
+        GAME.stream_url = link
     publish_link(to=room)
 
 
 @socketio.on('prediction', namespace='/room')
 def prediction(message):
+    global GAME
+
     room = session.get('room')
     username = session.get('username')
 
     if username != ADMIN:
         from random import choice, randint
         score = randint(0, 4)
-        LEADERBOARD[username] += score
+        GAME.update_leaderboard(modification={username: score}, mode='add')
         publish_leaderboard(to=room)
+
         emit('prediction-queue', {'username': username, 'song': message.get('author', '<none>'), 'submitter': message.get('submitter', '<none>')}, to=ADMIN)
         emit('result', {'type': message['type'], 'result': f"+{score}"}, to=username)
 
 
 @socketio.on('join', namespace='/room')
 def join(*args):
-    global LEADERBOARD
+    global GAME
 
     room = session.get('room')
     username = session.get('username')
     join_room(room)
     join_room(username)
+    GAME.add_player(username=username)
 
     if username != ADMIN:
         from random import randint
-        LEADERBOARD[username] = LEADERBOARD.get(username, randint(0, 69))
+        GAME.update_leaderboard(modification={username: randint(0, 69)}, mode='add')
+
     emit('status', {'msg': f'welcome in game {username if username != ADMIN else "[admin]"}'}, to=room)
     publish_leaderboard(to=room)
     publish_link(to=room)
@@ -135,14 +144,14 @@ def join(*args):
 @socketio.on('left', namespace='/room')
 @socketio.on('disconnect', namespace='/room')
 def left(*args):
-    global LEADERBOARD
+    global GAME
 
     room = session.get('room')
     username = session.get('username')
     leave_room(room)
     leave_room(username)
-    if LEADERBOARD.get(username):
-        del LEADERBOARD[username]
+    GAME.remove_user(username=username)
+
     session.clear()
     emit('status', {'msg': f'{username if username != ADMIN else "[admin]"} has left the room'}, to=room)
     publish_leaderboard(to=room)

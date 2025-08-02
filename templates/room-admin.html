@@ -120,9 +120,6 @@
       <div id="leaderboard">Waiting for socketio to establish connection...</div>
       <div><button type="button" class="btn btn-danger" onclick=leave_room()>Leave the game</button></div>
     </div>
-<!--    <div class="col-2" style="min-height: 80vh;" id="leaderboard">-->
-<!--      Waiting for socketio to establish connection...-->
-<!--    </div>-->
     <div class="col-8" style="min-height: 80vh;">
       <div class="row h-80">
         <iframe src="" id="stream" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope;"></iframe>
@@ -132,14 +129,17 @@
           <div class="row h-20"><button class="full" type="button" id="change-leaderboard">change leaderboard</button></div>
           <div class="row h-80"><textarea class="full" id="admin-leaderboard" placeholder="waiting for leaderboard..." autocomplete="off"></textarea></div>
         </div>
-        <div class="col-8" id="submission-queue">submissions queue here</div>
+<!--        <div class="col-8" id="submission-queue">submissions queue here</div>-->
       </div>
     </div>
     <div class="col-2" style="min-height: 80vh;">
-      <div class="row h-95"><textarea id="chat" placeholder="Waiting for socketio to establish connection..." readonly style="resize: none;"></textarea></div>
+      <div class="row h-35"><textarea id="chat" placeholder="Waiting for socketio to establish connection..." readonly style="resize: none;"></textarea></div>
       <div class="row h-5">
         <div class="w-80"><input class="full" type="text" id="text" placeholder="Enter your message here" autocomplete="off"></div>
         <div class="w-20"><button class="full" type="button" id="send">send</button></div>
+      </div>
+      <div class="row h-60" id="submission-queue">
+
       </div>
     </div>
   </div>
