@@ -6,16 +6,15 @@ body {
 body {
   -ms-flex-align: center;
   align-items: center;
-  padding-top: 5%;
-  padding-bottom: 5%;
-  padding-left: 5%;
-  padding-right: 5%;
   background-color: #004B95;
   background-image: url("../static/images/bg.png");
   background-repeat: repeat;
   color: #ffffff;
   font-family: "RobotoFlex-regular", sans-serif !important;
   font-size: clamp(1rem, 3dvw, 1.2rem);
+align-content: center;
+      padding-top: 30px;
+      padding-bottom: 30px;
 }
 
 .form-signin {
@@ -77,6 +76,10 @@ h2{
 
 .h4{
 	font-size: clamp(2rem, 4dvw, 2.4rem);
+}
+
+.h5{
+    font-size: clamp(1.7rem, 3dvw, 2rem);
 }
 
 .text-shadow{
@@ -193,18 +196,230 @@ textarea {
     align-items: center;
 }
 
-.container {
+.container-grid {
   display: grid;
-  grid-template-columns: auto auto auto;
+  grid-template-columns: 1fr 1fr 1fr;
   background-color: dodgerblue;
   padding: 10px;
+  gap: 8px;
+  height: 200px;
+    overflow-y: auto !important;
 }
-.container > div {
-  background-color: #f1f1f1;
-  border: 1px solid black;
-  padding: 10px;
-  font-size: 10px;
-  text-align: center;
-  font-color: #0f0f0f;
+.container-grid > button {
+    background-color: #08306e;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-align: center;
+    color: #ffffff;
+    font-size: 1rem;
+    align-content: center;
+    border-radius: 10px;
+        outline: none;
+    border: none;
 }
 
+.container{
+    max-width:1920px;
+    width: 100%;
+}
+
+#stream{
+    min-height: 400px;
+aspect-ratio: 16 / 8;
+    border-radius: 15px;
+}
+
+.bg-white-transparent, #leaderboard{
+    background-color: rgba(255,255,255,0.3);
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.button-leave-game{
+font-weight: 600;
+    width: 100%;
+    line-height: 1.8;
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    border-radius: 8px;
+}
+
+.emo-ticon{
+        width: auto;
+    max-width: 32px;
+    max-height: 32px;
+    height: auto;
+}
+
+.person_score{
+    background: #d42db2;
+    border: solid 3px white;
+    border-radius: 5px;
+    width: 60px;
+    height: 100%;
+    min-height: 50px;
+    font-size: 1.2rem;
+    align-content: center;
+    text-align: center;
+    font-weight: 700;
+}
+
+.person_name{
+    background: #08306E;
+    padding: 10px 15px;
+    border-radius: 10px 0 0 10px;
+    width: 100%;
+    text-align: left;
+    font-weight: 600;
+}
+
+.person_div{
+    display: flex;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#chat{
+        resize: none;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1rem;
+    padding: 20px 10px;
+        aspect-ratio: 16 / 43;
+    margin-bottom: -2px;
+}
+
+#text{
+    border: solid 2px white;
+    padding: 10px 15px;
+    outline: none;
+    border-radius: 0 0 10px 10px;
+}
+
+#text:focus-visible{
+    border: solid 2px #d42db2;
+}
+
+.button_arrow{
+        font-family: monospace;
+    font-size: 1.7rem;
+    line-height: 0;
+    font-weight: 400;
+    position: relative;
+    top: 1px;
+}
+
+.guess{
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.guess_name, .guess_person{
+    background-color: white;
+    border-radius: 10px;
+    color: black;
+    padding: 10px 15px;
+}
+
+.guess_name{
+    width: 55%;
+    align-content: center;
+}
+
+.guess_person{
+    width: 30%;
+    align-content: center;
+}
+
+.guess_number{
+    width: 10%;
+    height: 50px;
+    border-radius: 10px;
+    text-align: center;
+    align-content: center;
+    font-weight: 800;
+        height: auto;
+}
+
+.number_0{background-color: red;}
+.number_1{background-color: orange;}
+.number_2{background-color: yellow; color: black;}
+.number_3{background-color: green;}
+
+
+
+input{
+        display: block;
+    width: 100%;
+    height: calc(1.5em + .75rem + 2px);
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    color: black;
+    border-radius: 15px;
+    padding: 10px !important;
+}
+
+input::placeholder{
+    color: darkgray;
+}
+
+.input_enter{
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+#prediction-submit{
+margin-left: auto;
+margin-right: auto;
+background-color: #D42CB2;
+border: 0px;
+font-weight: 500;
+font-size: 1.2rem;
+border-radius: 10px;
+padding: 10px;
+color: white;
+}
+
+#prediction-submit:hover{
+    background-color: #e533c1;
+}
+
+#prediction-submit i{
+    font-weight: 200;
+}
+
+@media (min-width:1200px){
+.col-min-width-300px{
+        width: 300px;
+    max-width: 300px !important;
+    flex: 0 0 300px;
+}
+
+.col-min-width-100p-600px{
+    width: 300px;
+    max-width: calc(100% - 600px);
+    flex: 0 0 calc(100% - 600px);
+}
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #08306e;
+}
+
+::-webkit-scrollbar-thumb {
+  background: white;
+  border-radius: 10px;
+}

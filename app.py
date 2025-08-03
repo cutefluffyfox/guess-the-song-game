@@ -119,7 +119,7 @@ def prediction(message):
         publish_leaderboard(to=room)
 
         emit('prediction-queue', {'username': username, 'song': message.get('author', '<none>'), 'submitter': message.get('submitter', '<none>')}, to=ADMIN)
-        emit('result', {'type': message['type'], 'result': f"+{score}"}, to=username)
+        # emit('result', {'type': message['type'], 'result': f"+{score}"}, to=username)
 
 
 @socketio.on('join', namespace='/room')
@@ -128,13 +128,18 @@ def join(*args):
 
     room = session.get('room')
     username = session.get('username')
+
+    if username is None:
+        emit('redirect', {})
+        return
+
     join_room(room)
     join_room(username)
-    GAME.add_player(username=username)
 
     if username != ADMIN:
-        from random import randint
-        GAME.update_leaderboard(modification={username: randint(0, 69)}, mode='add')
+        GAME.add_player(username=username)
+    else:
+        GAME.add_admin(username=username)
 
     emit('status', {'msg': f'welcome in game {username if username != ADMIN else "[admin]"}'}, to=room)
     publish_leaderboard(to=room)

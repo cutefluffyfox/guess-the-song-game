@@ -58,6 +58,10 @@ class Player(User):
         self.submissions.clear()
 
 
+class Admin(User):
+    pass
+
+
 class Game:
     users: dict[str, User]
     room_name: str
@@ -69,18 +73,34 @@ class Game:
         self.throw_exceptions = throw_exceptions
         self.users = dict()
 
-    def get_leaderboard(self):
+    def get_leaderboard(self) -> dict[str, float]:
         leaderboard = dict()
         for username, user in self.users.items():
             if isinstance(user, Player):
                 leaderboard[username] = user.points
         return leaderboard
 
-    def get_playes(self):
+    def get_playes(self) -> list[str]:
         return [username for username, user in self.users.items() if isinstance(user, Player) and user.is_online]
 
-    def get_viewers(self):
+    def get_viewers(self) -> list[str]:
         return [username for username, user in self.users.items() if isinstance(user, Viewer) and user.is_online]
+
+    def is_admin(self, username: str) -> bool:
+        return isinstance(self.users.get(username, Viewer('')), Admin)
+
+    def add_admin(self, username: str):
+        if any(isinstance(user, Admin) for user in self.users.values() if user.is_online):  # check whether there is active admin already
+            self.__throw_if_allowed(UserManagementError, 'Tried to add an admin, however it already exists and online')
+            return
+        if self.users.get(username) is None:
+            admin = Admin(username=username)
+            admin.is_online = True
+            self.users[username] = admin
+        elif isinstance(self.users[username], Admin):
+            self.users[username].is_online = True
+        else:
+            self.__throw_if_allowed(UserManagementError, 'Tried to add admin, however non-admin with such nickname already exists')
 
     def add_viewer(self, username: str):
         if self.users.get(username) is None:

@@ -46,6 +46,11 @@
                   link = data["link"];
                   document.getElementById('stream').src = link;
               });
+              socket.on('redirect', function(data) {
+                  socket.disconnect();
+                  // go back to the login page
+                  window.location.href = "{{ url_for('index') }}";
+              });
               $('#send').click(function(e) {
                   text = $('#text').val();
                   if (!text) return;
@@ -97,60 +102,107 @@
 <body class="text-center">
 
 
-<div>
-  <div class="row">
-    <div class="col">
-      drop the title
-    </div>
-  </div>
+<div class="container">
+  <h2 class="h4 mb-0 text-shadow" style="line-height: 0.5;">LeVoice's</h2>
+  <h1 class="h2 text-shadow">Guess The Song!</h1>
 
   <div class="row">
-    <div class="col-2" style="min-height: 80vh;">
-      <div id="leaderboard">Waiting for socketio to establish connection...</div>
-      <div><button type="button" class="btn btn-danger" onclick=leave_room()>Leave the game</button></div>
+    <div class="col-xl-2 col-min-width-300px py-4">
+      <h3 class="h5 text-shadow text-left">Score Board</h3>
+      <div id="leaderboard" class="mb-3">
+        Waiting for socketio to establish connection...
+      </div>
+
+        <div class="bg-white-transparent mb-4 p-2">
+          <div class="person_div">
+            <div class="person_name">yeo</div>
+            <div class="person_score">69</div>
+        </div>
+
+        <div class="person_div">
+            <div class="person_name">yeo</div>
+            <div class="person_score">69</div>
+        </div>
+      </div>
+
+      <div><button type="button" class="btn btn-danger button-leave-game" onclick=leave_room()>LEAVE GAME <span class="button_arrow">></span></button></div>
     </div>
-    <div class="col-8" style="min-height: 80vh;">
-      <div class="row h-80">
+    <div class="col-xl-8 col-min-width-100p-600px py-4 mt-5">
+      <div class="mb-3">
         <iframe src="" id="stream" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope;"></iframe>
       </div>
-      <div class="row h-20">
-        <div class="col-2"></div>
-        <div class="col-8">
-          <div class="row h-40"><input class="full" type="text" id="author-input" placeholder="Enter author & song name " autocomplete="off"></div>
-          <div class="row h-40"><input class="full" type="text" id="submitter-input" placeholder="Enter submitter" autocomplete="off"></div>
-          <div class="row h-20"><button class="full" type="button" id="prediction-submit">send</button></div>
+      <div class="bg-white-transparent">
+        <div class="row">
+          <div class="col-md-6 py-3 px-5 text-left">
+            <p class="font-weight-light">Guess the song title, artist and the song submitter to earn points! You have three attempts to find the correct answer. Good luck!</p>
+
+            <div><p class="mb-0">Song title and Artist (2 points)</p>
+              <input class="w-100 mb-3 input_enter" type="text" id="author-input" placeholder="Enter author & song name " autocomplete="off">
+            </div>
+            <div>
+              <p class="mb-0">Submitter (3 points)</p>
+              <input class="w-100 mb-3 input_enter" type="text" id="submitter-input" placeholder="Enter submitter" autocomplete="off">
+            </div>
+            <div><button class="w-100" type="button" id="prediction-submit">SEND <i>(3 Attempts left)</i></button></div>
+          </div>
+
+          <div class="col-md-6 px-4">
+            <h4 class="h4">~ Your guesses ~</h4>
+
+            <div class="guess">
+              <div class="guess_number number_0">0</div>
+              <div class="guess_name">Paula Carolina - Schreien!</div>
+              <div class="guess_person">Fluffy</div>
+            </div>
+
+            <div class="guess">
+              <div class="guess_number number_1">1</div>
+              <div class="guess_name">Paula Carolina - Schreien!</div>
+              <div class="guess_person">Fluffy</div>
+            </div>
+
+            <div class="guess">
+              <div class="guess_number number_2">2</div>
+              <div class="guess_name">Paula Carolina - Schreien!</div>
+              <div class="guess_person">Fluffy</div>
+            </div>
+
+            <div class="guess">
+              <div class="guess_number number_3">3</div>
+              <div class="guess_name">Paula Carolina - Schreien!</div>
+              <div class="guess_person">Fluffy</div>
+            </div>
+
+          </div>
+
         </div>
-        <div class="col-2"></div>
       </div>
     </div>
-    <div class="col-2" style="min-height: 80vh;">
-      <div class="row h-75"><textarea id="chat" placeholder="Waiting for socketio to establish connection..." readonly style="resize: none;"></textarea></div>
-      <div class="row h-5">
-        <div class="w-80"><input class="full" type="text" id="text" placeholder="Enter your message here" autocomplete="off"></div>
-        <div class="w-20"><button class="full" type="button" id="send">send</button></div>
+    <div class="col-xl-2 col-min-width-300px py-4">
+      <h3 class="h5 text-shadow text-left">Le Chat</h3>
+      <div class="bg-white-transparent mb-3">
+        <textarea id="chat" placeholder="Waiting for socketio to establish connection..." readonly style="resize: none;"></textarea>
+        <input class="full" type="text" id="text" placeholder="Enter your message here" autocomplete="off">
       </div>
-      <div class="row h-20">
-        <div class="container">
-          <div>1</div>
-          <div>2</div>
-          <div>3</div>
-          <div>4</div>
-          <div>5</div>
-          <div>6</div>
-          <div>7</div>
-          <div>8</div>
-          <div>9</div>
-          <div>10</div>
-          <div>11</div>
-          <div>12</div>
-          <div>13</div>
-          <div>14</div>
-          <div>15</div>
-        </div>
+        <div class="container-grid bg-white-transparent">
+          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
+          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
+          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
+          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
+          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
+          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
+          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
+          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
+          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
+          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
+          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
+          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
+          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
+          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
+          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
       </div>
     </div>
   </div>
 </div>
-
   </body>
 </html>

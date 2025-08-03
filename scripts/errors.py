@@ -1,6 +1,7 @@
 class GameErrors(RuntimeError):
     pass
 
+
 class GameConfigError(GameErrors):
     pass
 

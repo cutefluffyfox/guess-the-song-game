@@ -2,7 +2,7 @@ MAX_SUBMISSION_COUNT = 3
 
 POSSIBLE_SUBMITTERS = sorted([
     'CuteFluffyFox', 'Yeouryl', 'Le Voice', 'Coconought',
-    'Potato', 'Recrut54', 'Ethomit', 'Komider', 'Wizzet',
+    'Potato', 'Recrut54', 'Ehtomit', 'Komider', 'Wizzet',
     'SkyfallStar', 'SoundFox', 'Thires',
 ])
 
