@@ -1,5 +1,4 @@
 from os import environ
-from collections import defaultdict
 
 import dotenv
 from flask import Flask, render_template, redirect, request, url_for, session
@@ -141,7 +140,7 @@ def join(*args):
     else:
         GAME.add_admin(username=username)
 
-    emit('status', {'msg': f'welcome in game {username if username != ADMIN else "[admin]"}'}, to=room)
+    emit('status', {'msg': f'welcome in game {"[admin]" if GAME.is_admin(username) else username}'}, to=room)
     publish_leaderboard(to=room)
     publish_link(to=room)
 
@@ -158,7 +157,7 @@ def left(*args):
     GAME.remove_user(username=username)
 
     session.clear()
-    emit('status', {'msg': f'{username if username != ADMIN else "[admin]"} has left the room'}, to=room)
+    emit('status', {'msg': f'{"[admin]" if GAME.is_admin(username) else username} has left the game'}, to=room)
     publish_leaderboard(to=room)
     publish_link(to=room)
 
