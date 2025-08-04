@@ -6,7 +6,7 @@ from datetime import timedelta
 from flask_socketio import SocketIO, join_room, leave_room, emit
 from flask_session import Session
 
-from scripts.game_rules import DEFAULT_IFRAME_LINK
+from scripts.game_rules import DEFAULT_IFRAME_LINK, POSSIBLE_SUBMITTERS
 from scripts import game
 
 # load environment variables
@@ -39,6 +39,14 @@ def publish_link(to: str):
     emit('stream-change', {'link': GAME.stream_url}, to=to)
 
 
+def publish_player_info(username: str):
+    emit('user-info', GAME.get_user(username), to=username)
+
+
+def send_chat_message(message: str, to: str):
+    emit('status', {'msg': message}, to=to)
+
+
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def index():
@@ -47,16 +55,19 @@ def index():
 
 @app.route('/room', methods=['GET', 'POST'])
 def room():
+    global GAME
+
     if request.method == 'POST':
         username = request.form['username']
 
         # Store the data in session
         session['username'] = username
-        session['room'] = 'default'
-        return render_template('./room-admin.html' if username == ADMIN else './room.html', session=session)
+        session['room'] = GAME.room_name
+
+        return render_template('./room-admin.html' if username == ADMIN else './room.html', session=session, possible_submitters=POSSIBLE_SUBMITTERS)
     else:
         if session.get('room') is not None:
-            return render_template('./room-admin.html' if session.get('username') == ADMIN else './room.html', session=session)
+            return render_template('./room-admin.html' if session.get('username') == ADMIN else './room.html', session=session, possible_submitters=POSSIBLE_SUBMITTERS)
         else:
             return redirect(url_for('index'))
 
@@ -67,7 +78,7 @@ def text(message):
     username = session.get('username')
     if username == ADMIN:
         username = '[admin]'
-    emit('message', {'msg': f"{username}: {message['msg']}"}, to=room)
+    send_chat_message(message=f"{username}: {message['msg']}", to=room)
 
 
 @socketio.on('leaderboard-change', namespace='/room')
@@ -108,17 +119,19 @@ def stream_change(message):
 def prediction(message):
     global GAME
 
-    room = session.get('room')
     username = session.get('username')
 
-    if username != ADMIN:
-        from random import choice, randint
-        score = randint(0, 4)
-        GAME.update_leaderboard(modification={username: score}, mode='add')
-        publish_leaderboard(to=room)
+    if GAME.is_player(username):
+        GAME.add_submission(
+            username=username,
+            song_info=message.get('author', '<none>'),
+            submitter=message.get('submitter', '<none>')
+        )
 
-        emit('prediction-queue', {'username': username, 'song': message.get('author', '<none>'), 'submitter': message.get('submitter', '<none>')}, to=ADMIN)
-        # emit('result', {'type': message['type'], 'result': f"+{score}"}, to=username)
+        submissions = GAME.get_submissions()
+        for admin in GAME.get_admins():
+            emit('prediction-queue', submissions, to=admin)
+        publish_player_info(username=username)
 
 
 @socketio.on('join', namespace='/room')
@@ -135,12 +148,13 @@ def join(*args):
     join_room(room)
     join_room(username)
 
-    if username != ADMIN:
-        GAME.add_player(username=username)
-    else:
+    if username == ADMIN:
         GAME.add_admin(username=username)
+    else:
+        GAME.add_player(username=username)
 
-    emit('status', {'msg': f'welcome in game {"[admin]" if GAME.is_admin(username) else username}'}, to=room)
+    send_chat_message(message=f'welcome in game {"[admin]" if GAME.is_admin(username) else username}', to=room)
+    publish_player_info(username=username)
     publish_leaderboard(to=room)
     publish_link(to=room)
 
@@ -157,7 +171,7 @@ def left(*args):
     GAME.remove_user(username=username)
 
     session.clear()
-    emit('status', {'msg': f'{"[admin]" if GAME.is_admin(username) else username} has left the game'}, to=room)
+    send_chat_message(message=f'{"[admin]" if GAME.is_admin(username) else username} has left the game', to=room)
     publish_leaderboard(to=room)
     publish_link(to=room)
 

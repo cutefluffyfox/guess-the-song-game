@@ -27,10 +27,21 @@
                   $('#chat').val($('#chat').val() + data.msg + '\n');
                   $('#chat').scrollTop($('#chat')[0].scrollHeight);
               });
+              socket.on('user-info', function(data) {
+                  $('#user-submissions').empty();
+                  $('#user-submissions').append('<h4 class="h4">~ Your guesses ~</h4>');
+                  for (const submission of data["submissions"]) {
+                      if (!submission["processed"]) {
+                          $('#user-submissions').append('<div class="guess"><div class="guess_number number_unk">?</div><div class="guess_name">' + submission["song"] + '</div><div class="guess_person">' + submission["submitter"] + '</div></div>');
+                      }
+                  }
+                  var submitBnt = document.getElementById("prediction-submit");
+                  submitBnt.innerHTML = 'SEND <i>(' + data["submissions-left"] + ' Attempts left)</i>';
+              });
               socket.on('score', function(data) {
                   $('#leaderboard').empty();
                   for (const [key, value] of Object.entries(data)) {
-                     $('#leaderboard').prepend("<div class=\"person_div\"><div class=\"person_name\">" + key + "</div><div class=\"person_score\">" + value + "</div></div>");
+                     $('#leaderboard').append("<div class=\"person_div\"><div class=\"person_name\">" + key + "</div><div class=\"person_score\">" + value + "</div></div>");
                      continue;
                   }
               });
@@ -137,13 +148,26 @@
             </div>
             <div>
               <p class="mb-0">Submitter (3 points)</p>
-              <input class="w-100 mb-3 input_enter" type="text" id="submitter-input" placeholder="Enter submitter" autocomplete="off">
+              <input class="w-100 mb-3 input_enter" type="text" id="submitter-input" placeholder="Enter submitter" autocomplete="off" list="submitters">
+              <datalist id="submitters">
+                {% for username in possible_submitters %}
+                   <option>{{username}}</option>
+                {% endfor %}
+              </datalist>
             </div>
             <div><button class="w-100" type="button" id="prediction-submit">SEND <i>(3 Attempts left)</i></button></div>
           </div>
 
-          <div class="col-md-6 px-4">
-            <h4 class="h4">~ Your guesses ~</h4>
+          <div class="col-md-6 px-4" id="user-submissions">
+            Waiting for socketio to establish connection...
+
+            <h4 class="h4">~ Examples ~</h4>
+
+            <div class="guess">
+              <div class="guess_number number_unk">?</div>
+              <div class="guess_name">Paula Carolina - Schreien!</div>
+              <div class="guess_person">Fluffy</div>
+            </div>
 
             <div class="guess">
               <div class="guess_number number_0">0</div>
@@ -170,7 +194,6 @@
             </div>
 
           </div>
-
         </div>
       </div>
     </div>

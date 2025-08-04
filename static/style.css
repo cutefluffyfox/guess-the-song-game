@@ -342,6 +342,7 @@ font-weight: 600;
         height: auto;
 }
 
+.number_unk{background-color: darkgray;}
 .number_0{background-color: red;}
 .number_1{background-color: orange;}
 .number_2{background-color: yellow; color: black;}

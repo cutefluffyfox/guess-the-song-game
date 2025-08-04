@@ -8,7 +8,8 @@ class Submission:
     song_title: str
     submitter: str
     score: float
-    time: datetime
+    submit_time: datetime
+    score_time: datetime
     processed: bool
 
     def __init__(self, song_title: str, submitter: str):
@@ -16,12 +17,26 @@ class Submission:
             raise GameRuleViolation(f'Invalid submitter username')
         self.song_title = song_title
         self.submitter = submitter
+        self.submit_time = datetime.now()
         self.processed = False
+
 
     def set_score(self, score: float):
         self.score = score
-        self.time = datetime.now()
+        self.score_time = datetime.now()
         self.processed = True
+
+    def json(self) -> dict:
+        data = {
+            'song': self.song_title,
+            'submitter': self.submitter,
+            'submit_time': self.submit_time.toordinal(),
+            'processed': self.processed,
+        }
+        if self.processed:
+            data['score'] = self.score
+            data['score_time'] = self.score_time.toordinal()
+        return data
 
 
 class User:
@@ -31,6 +46,9 @@ class User:
     def __init__(self, username: str):
         self.username = username
         self.is_online = False
+
+    def json(self) -> dict:
+        return {'username': self.username}
 
 
 class Viewer(User):
@@ -57,6 +75,13 @@ class Player(User):
     def clear_submissions(self):
         self.submissions.clear()
 
+    def json(self):
+        return {
+            'username': self.username,
+            'points': self.points,
+            'submissions': [submission.json() for submission in self.submissions]
+        }
+
 
 class Admin(User):
     pass
@@ -75,19 +100,39 @@ class Game:
 
     def get_leaderboard(self) -> dict[str, float]:
         leaderboard = dict()
-        for username, user in self.users.items():
-            if isinstance(user, Player):
-                leaderboard[username] = user.points
+        for username in self.get_players():
+            leaderboard[username] = self.users[username].points
         return leaderboard
 
-    def get_playes(self) -> list[str]:
+    def get_submissions(self) -> dict[str, list[dict]]:
+        submissions = dict()
+        for username in self.get_players():
+            submissions[username] = self.users[username].json()['submissions']
+        return submissions
+
+    def get_players(self) -> list[str]:
         return [username for username, user in self.users.items() if isinstance(user, Player) and user.is_online]
 
     def get_viewers(self) -> list[str]:
         return [username for username, user in self.users.items() if isinstance(user, Viewer) and user.is_online]
 
+    def get_admins(self) -> list[str]:
+        return [username for username, user in self.users.items() if isinstance(user, Admin) and user.is_online]
+
     def is_admin(self, username: str) -> bool:
         return isinstance(self.users.get(username, Viewer('')), Admin)
+
+    def is_player(self, username: str) -> bool:
+        return isinstance(self.users.get(username, Viewer('')), Player)
+
+    def get_user(self, username: str) -> dict:
+        user = self.users.get(username)
+        if user is None:
+            self.__throw_if_allowed(UserManagementError, 'Tried to get info about non-existent user')
+            return {}
+        user_info = user.json()
+        user_info['submissions-left'] = MAX_SUBMISSION_COUNT - len(user_info['submissions'])
+        return user_info
 
     def add_admin(self, username: str):
         if any(isinstance(user, Admin) for user in self.users.values() if user.is_online):  # check whether there is active admin already
