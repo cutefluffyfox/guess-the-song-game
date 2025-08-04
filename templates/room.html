@@ -33,6 +33,14 @@
                   for (const submission of data["submissions"]) {
                       if (!submission["processed"]) {
                           $('#user-submissions').append('<div class="guess"><div class="guess_number number_unk">?</div><div class="guess_name">' + submission["song"] + '</div><div class="guess_person">' + submission["submitter"] + '</div></div>');
+                      } else if (submission["score"] < 0.5) {
+                          $('#user-submissions').append('<div class="guess"><div class="guess_number number_0">' + submission["score"] + '</div><div class="guess_name">' + submission["song"] + '</div><div class="guess_person">' + submission["submitter"] + '</div></div>');
+                      } else if (submission["score"] < 1.5) {
+                          $('#user-submissions').append('<div class="guess"><div class="guess_number number_1">' + submission["score"] + '</div><div class="guess_name">' + submission["song"] + '</div><div class="guess_person">' + submission["submitter"] + '</div></div>');
+                      } else if (submission["score"] < 2.5) {
+                          $('#user-submissions').append('<div class="guess"><div class="guess_number number_2">' + submission["score"] + '</div><div class="guess_name">' + submission["song"] + '</div><div class="guess_person">' + submission["submitter"] + '</div></div>');
+                      } else {
+                          $('#user-submissions').append('<div class="guess"><div class="guess_number number_3">' + submission["score"] + '</div><div class="guess_name">' + submission["song"] + '</div><div class="guess_person">' + submission["submitter"] + '</div></div>');
                       }
                   }
                   var submitBnt = document.getElementById("prediction-submit");
@@ -68,20 +76,17 @@
                   $('#text').val('');
                   socket.emit('text', {msg: text});
               });
-              $('#author-submit').click(function(e) {
-
-                  if (!text) return;
-                  $('#author-input').val('');
-                  socket.emit('prediction', {prediction: text, type: "author"});
-              });
               $('#prediction-submit').click(function(e) {
                   submitter = $('#submitter-input').val();
                   author = $('#author-input').val();
-                  if (!submitter || !author) {
-                      alert("Both submitter and author must be present :3");
+                  if (!submitter && !author) {
+                      alert("At least submitter or an author must be guessed :3");
+                      return;
                   };
                   $('#submitter-input').val('');
                   $('#author-input').val('');
+                  if (!submitter) submitter = '';
+                  if (!author) author = '';
                   socket.emit('prediction', {author: author, submitter: submitter});
               });
               $('#okak').click(function(e) {
@@ -141,7 +146,7 @@
       <div class="bg-white-transparent">
         <div class="row">
           <div class="col-md-6 py-3 px-5 text-left">
-            <p class="font-weight-light">Guess the song title, artist and the song submitter to earn points! You have three attempts to find the correct answer. Good luck!</p>
+            <p class="font-weight-light">Guess the song title, artist and the song submitter to earn points! You have limited attempts to find the correct answer. Good luck!</p>
 
             <div><p class="mb-0">Song title and Artist (2 points)</p>
               <input class="w-100 mb-3 input_enter" type="text" id="author-input" placeholder="Enter author & song name " autocomplete="off">

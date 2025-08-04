@@ -6,7 +6,7 @@ from datetime import timedelta
 from flask_socketio import SocketIO, join_room, leave_room, emit
 from flask_session import Session
 
-from scripts.game_rules import DEFAULT_IFRAME_LINK, POSSIBLE_SUBMITTERS
+from scripts.game_rules import DEFAULT_IFRAME_LINK, POSSIBLE_SUBMITTERS, ADMIN_USERNAME
 from scripts import game
 
 # load environment variables
@@ -77,7 +77,7 @@ def text(message):
     room = session.get('room')
     username = session.get('username')
     if username == ADMIN:
-        username = '[admin]'
+        username = ADMIN_USERNAME
     send_chat_message(message=f"{username}: {message['msg']}", to=room)
 
 
@@ -128,6 +128,10 @@ def prediction(message):
             submitter=message.get('submitter', '<none>')
         )
 
+        # TODO: remove it
+        from random import randint
+        GAME.score_submission(username=username, submission_id=len(GAME.get_user_submissions(username))-1, score=randint(0, 4))
+
         submissions = GAME.get_submissions()
         for admin in GAME.get_admins():
             emit('prediction-queue', submissions, to=admin)
@@ -153,7 +157,7 @@ def join(*args):
     else:
         GAME.add_player(username=username)
 
-    send_chat_message(message=f'welcome in game {"[admin]" if GAME.is_admin(username) else username}', to=room)
+    send_chat_message(message=f'welcome in game {ADMIN_USERNAME if GAME.is_admin(username) else username}', to=room)
     publish_player_info(username=username)
     publish_leaderboard(to=room)
     publish_link(to=room)
@@ -171,7 +175,7 @@ def left(*args):
     GAME.remove_user(username=username)
 
     session.clear()
-    send_chat_message(message=f'{"[admin]" if GAME.is_admin(username) else username} has left the game', to=room)
+    send_chat_message(message=f'{ADMIN_USERNAME if GAME.is_admin(username) else username} has left the game', to=room)
     publish_leaderboard(to=room)
     publish_link(to=room)
 

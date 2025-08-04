@@ -13,7 +13,7 @@ class Submission:
     processed: bool
 
     def __init__(self, song_title: str, submitter: str):
-        if submitter not in POSSIBLE_SUBMITTERS:
+        if submitter and submitter not in POSSIBLE_SUBMITTERS:
             raise GameRuleViolation(f'Invalid submitter username')
         self.song_title = song_title
         self.submitter = submitter
@@ -30,12 +30,12 @@ class Submission:
         data = {
             'song': self.song_title,
             'submitter': self.submitter,
-            'submit_time': self.submit_time.toordinal(),
+            'submit_time': self.submit_time.timestamp(),
             'processed': self.processed,
         }
         if self.processed:
             data['score'] = self.score
-            data['score_time'] = self.score_time.toordinal()
+            data['score_time'] = self.score_time.timestamp()
         return data
 
 
@@ -68,18 +68,21 @@ class Player(User):
         if len(self.submissions) >= MAX_SUBMISSION_COUNT:
             raise GameRuleViolation(f'User violated amount of submissions')
         self.submissions.append(submission)
+        self.submissions.sort(key=lambda s: s.submit_time)
 
     def get_submissions(self):
+        self.submissions.sort(key=lambda s: s.submit_time)
         return self.submissions
 
     def clear_submissions(self):
         self.submissions.clear()
 
     def json(self):
+        self.submissions.sort(key=lambda s: s.submit_time)
         return {
             'username': self.username,
             'points': self.points,
-            'submissions': sorted([submission.json() for submission in self.submissions], key=lambda s: s['submit_time'])
+            'submissions': [submission.json() for submission in self.submissions]
         }
 
 
@@ -218,4 +221,25 @@ class Game:
             submitter=submitter
         )
         self.users[username].add_submission(submission)  # TODO: add error-handling when max-submissions violated
+
+    def score_submission(self, username: str, submission_id: int, score: float):
+        if not self.users.get(username):
+            self.__throw_if_allowed(UserManagementError, 'Attempted to score submission of non-existent user')
+            return
+        if not isinstance(self.users[username], Player):
+            self.__throw_if_allowed(UserManagementError, 'Attempted to score submission to non-player')
+            return
+        if not isinstance(submission_id, int) or submission_id < 0 or submission_id >= len(self.users[username].get_submissions()):
+            self.__throw_if_allowed(RuntimeError, 'Attempted to score non-existent submission (invalid id)')
+            return
+        self.users[username].submissions[submission_id].set_score(score)
+
+    def get_user_submissions(self, username: str) -> list[dict]:
+        if not self.users.get(username):
+            self.__throw_if_allowed(UserManagementError, 'Attempted to get submissions of non-existent user')
+            return
+        if not isinstance(self.users[username], Player):
+            self.__throw_if_allowed(UserManagementError, 'Attempted to get submissions of non-player')
+            return
+        return self.users[username].json()['submissions']
 
