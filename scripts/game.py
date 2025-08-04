@@ -79,11 +79,15 @@ class Player(User):
         return {
             'username': self.username,
             'points': self.points,
-            'submissions': [submission.json() for submission in self.submissions]
+            'submissions': sorted([submission.json() for submission in self.submissions], key=lambda s: s['submit_time'])
         }
 
 
-class Admin(User):
+class Moderator(User):
+    pass
+
+
+class Admin(Moderator):
     pass
 
 
