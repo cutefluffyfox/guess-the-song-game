@@ -7,6 +7,7 @@ from flask_socketio import SocketIO, join_room, leave_room, emit
 from flask_session import Session
 
 from scripts.game_rules import DEFAULT_IFRAME_LINK, POSSIBLE_SUBMITTERS, ADMIN_USERNAME
+from scripts import chat
 from scripts import game
 
 # load environment variables
@@ -27,6 +28,7 @@ ADMIN = environ['ADMIN_USERNAME']
 
 # game-related global variables
 GAME = game.Game('main', throw_exceptions=False)
+CHAT = chat.Chat()
 
 Session(app)
 
@@ -43,12 +45,12 @@ def publish_player_info(username: str):
     emit('user-info', GAME.get_user(username), to=username)
 
 
-def send_chat_status(message: str, to: str):
-    emit('status', {'msg': message}, to=to)
+def send_chat_status(username: str, message: str, to: str):
+    emit('status', {'msg': message, 'username': username, 'color': 'lime'}, to=to)
 
 
-def send_chat_message(message: str, to: str):
-    emit('message', {'msg': message}, to=to)
+def send_chat_message(username: str, message: str, to: str):
+    emit('message', {'msg': CHAT.process(message), 'username': username, 'color': 'lime'}, to=to)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -82,7 +84,7 @@ def text(message):
     username = session.get('username')
     if username == ADMIN:
         username = ADMIN_USERNAME
-    send_chat_message(message=f"{username}: {message['msg']}", to=room)
+    send_chat_message(message=message['msg'], username=username, to=room)
 
 
 @socketio.on('leaderboard-change', namespace='/room')
@@ -161,7 +163,7 @@ def join(*args):
     else:
         GAME.add_player(username=username)
 
-    send_chat_status(message=f'welcome in game {ADMIN_USERNAME if GAME.is_admin(username) else username}', to=room)
+    send_chat_status(message=f'welcome in game {ADMIN_USERNAME if GAME.is_admin(username) else username}', username=username, to=room)
     publish_player_info(username=username)
     publish_leaderboard(to=room)
     publish_link(to=room)
@@ -179,7 +181,7 @@ def left(*args):
     GAME.remove_user(username=username)
 
     session.clear()
-    send_chat_status(message=f'{ADMIN_USERNAME if GAME.is_admin(username) else username} has left the game', to=room)
+    send_chat_status(message=f'{ADMIN_USERNAME if GAME.is_admin(username) else username} has left the game', username=username, to=room)
     publish_leaderboard(to=room)
     publish_link(to=room)
 

@@ -10,3 +10,10 @@ POSSIBLE_SUBMITTERS = sorted([
 DEFAULT_IFRAME_LINK = 'https://www.openstreetmap.org/export/embed.html?bbox=-0.004017949104309083%2C51.47612752641776%2C0.00030577182769775396%2C51.478569861898606&amp;layer=mapnik'
 
 ADMIN_USERNAME = 'Le Voice'
+
+TEXT_TO_EMOTE = {
+    'smile': 'static/images/smile.webp',
+    'sadcat': 'static/images/SadCat.png',
+    'icon': 'static/images/icon.png',
+    'sus': 'static/images/sus.png',
+}

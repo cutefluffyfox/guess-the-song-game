@@ -28,8 +28,9 @@
                   }
               });
               socket.on('message', function(data) {
-                  var shouldScroll = Math.ceil($('#chat')[0].scrollTop + $('#chat')[0].clientHeight) >= $('#chat')[0].scrollHeight;
-                  $('#chat').append('<div class="chat-message">' + data.msg + '</div>');
+                  var shouldScroll = Math.ceil(10 + $('#chat')[0].scrollTop + $('#chat')[0].clientHeight) >= $('#chat')[0].scrollHeight;
+                  var msg = '<div class="chat-message"><span class="username" style="color: ' + data.color + '">' + data.username + ': </span><span class="message">' + data.msg + '</span></div>'
+                  $('#chat').append(msg);
                   if (shouldScroll) {
                       console.log("it should scroll");
                       $('#chat').scrollTop($('#chat')[0].scrollHeight);
@@ -214,14 +215,14 @@
       <h3 class="h5 text-shadow text-left">Le Chat</h3>
       <div class="bg-white-transparent mb-3">
         <div id="chat" style="resize: none;overflow-y: scroll;text-align:left;" >
-            <div class="chat-message">
-              <span class="username"style="color: orange">CuteFluffyFox:</span>
-			  <span class="message">This is so wowie holy moly<img class="emo-ticon" src="static/images/smile.webp">jdfskljsdf</span>
-            </div>
-			<div class="chat-message">
-              <span class="username" style="color: lime">Layla:</span>
-			  <span class="message">Fluffy is a cutie<img class="emo-ticon" src="static/images/smile.webp">and you know it </span>
-            </div>
+<!--            <div class="chat-message">-->
+<!--              <span class="username" style="color: orange">CuteFluffyFox:</span>-->
+<!--			  <span class="message">This is so wowie holy moly<img class="emo-ticon" src="static/images/smile.webp">jdfskljsdf</span>-->
+<!--            </div>-->
+<!--			<div class="chat-message">-->
+<!--              <span class="username" style="color: lime">Layla:</span>-->
+<!--			  <span class="message">Fluffy is a cutie<img class="emo-ticon" src="static/images/smile.webp">and you know it </span>-->
+<!--            </div>-->
         </div>
 		
 		
