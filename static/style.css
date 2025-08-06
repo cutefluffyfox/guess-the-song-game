@@ -426,3 +426,16 @@ color: white;
 .scrollable-area{
   overflow-y: scroll;
 }
+
+.username{
+	font-weight: 600;
+	margin-right: 1px;
+}
+
+.message{
+	
+}
+
+.emo-ticon{
+	margin: 0 5px;
+}
