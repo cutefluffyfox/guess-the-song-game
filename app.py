@@ -43,8 +43,12 @@ def publish_player_info(username: str):
     emit('user-info', GAME.get_user(username), to=username)
 
 
-def send_chat_message(message: str, to: str):
+def send_chat_status(message: str, to: str):
     emit('status', {'msg': message}, to=to)
+
+
+def send_chat_message(message: str, to: str):
+    emit('message', {'msg': message}, to=to)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -157,7 +161,7 @@ def join(*args):
     else:
         GAME.add_player(username=username)
 
-    send_chat_message(message=f'welcome in game {ADMIN_USERNAME if GAME.is_admin(username) else username}', to=room)
+    send_chat_status(message=f'welcome in game {ADMIN_USERNAME if GAME.is_admin(username) else username}', to=room)
     publish_player_info(username=username)
     publish_leaderboard(to=room)
     publish_link(to=room)
@@ -175,7 +179,7 @@ def left(*args):
     GAME.remove_user(username=username)
 
     session.clear()
-    send_chat_message(message=f'{ADMIN_USERNAME if GAME.is_admin(username) else username} has left the game', to=room)
+    send_chat_status(message=f'{ADMIN_USERNAME if GAME.is_admin(username) else username} has left the game', to=room)
     publish_leaderboard(to=room)
     publish_link(to=room)
 
