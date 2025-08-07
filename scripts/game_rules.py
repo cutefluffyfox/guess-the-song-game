@@ -16,4 +16,5 @@ TEXT_TO_EMOTE = {
     'sadcat': 'static/images/SadCat.png',
     'icon': 'static/images/icon.png',
     'sus': 'static/images/sus.png',
+    'a': 'static/images/a.gif',
 }

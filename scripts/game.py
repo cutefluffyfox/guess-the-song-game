@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from scripts.chat import Chat
 from scripts.errors import GameRuleViolation, UserManagementError, GameErrors
 from scripts.game_rules import MAX_SUBMISSION_COUNT, POSSIBLE_SUBMITTERS, DEFAULT_IFRAME_LINK
 
@@ -42,13 +43,45 @@ class Submission:
 class User:
     is_online: bool = False
     username: str
+    color: str
 
-    def __init__(self, username: str):
+    def __init__(self, username: str, color: str or None = None):
+        from random import choice
         self.username = username
         self.is_online = False
+        self.color = (
+            color
+            if isinstance(color, str) else
+            User.__from_hex(choice([
+                '#e6194B',
+                '#3cb44b',
+                '#ffe119',
+                '#4363d8',
+                '#f58231',
+                '#911eb4',
+                '#42d4f4',
+                '#f032e6',
+                '#bfef45',
+                '#fabed4',
+                '#469990',
+                '#dcbeff',
+                '#9A6324',
+                '#fffac8',
+                '#800000',
+                '#aaffc3',
+                '#808000',
+                '#ffd8b1',
+                '#000075'
+            ]))
+        )
 
     def json(self) -> dict:
-        return {'username': self.username}
+        return {'username': self.username, 'color': self.color}
+
+    @staticmethod
+    def __from_hex(color: str) -> str:
+        color = color.lstrip('#').strip()
+        return f"rgb({int(color[0:2], 16)}, {int(color[2:4], 16)}, {int(color[4:6], 16)});"
 
 
 class Viewer(User):
@@ -59,8 +92,8 @@ class Player(User):
     points: float = 0.0
     submissions: list[Submission]
 
-    def __init__(self, username: str, points: float):
-        super().__init__(username)
+    def __init__(self, username: str, points: float, color: str or None = None):
+        super().__init__(username=username, color=color)
         self.points = points
         self.submissions = list()
 
@@ -81,6 +114,7 @@ class Player(User):
         self.submissions.sort(key=lambda s: s.submit_time)
         return {
             'username': self.username,
+            'color': self.color,
             'points': self.points,
             'submissions': [submission.json() for submission in self.submissions]
         }
@@ -99,16 +133,23 @@ class Game:
     room_name: str
     throw_exceptions: bool = False
     stream_url: str = DEFAULT_IFRAME_LINK
+    chat: Chat
 
     def __init__(self, room_name: str, throw_exceptions: bool = False):
         self.room_name = room_name
         self.throw_exceptions = throw_exceptions
         self.users = dict()
+        self.chat = Chat()
 
-    def get_leaderboard(self) -> dict[str, float]:
-        leaderboard = dict()
-        for username in self.get_players():
-            leaderboard[username] = self.users[username].points
+    def get_leaderboard(self) -> list[dict]:
+        leaderboard = list()
+        for username in self.get_players(only_online=False):
+            user = self.users[username]
+            leaderboard.append({
+                'username': user.username,
+                'points': user.points,
+                'is_online': user.is_online
+            })
         return leaderboard
 
     def get_submissions(self) -> dict[str, list[dict]]:
@@ -117,14 +158,14 @@ class Game:
             submissions[username] = self.users[username].json()['submissions']
         return submissions
 
-    def get_players(self) -> list[str]:
-        return [username for username, user in self.users.items() if isinstance(user, Player) and user.is_online]
+    def get_players(self, only_online: bool = True) -> list[str]:
+        return [username for username, user in self.users.items() if isinstance(user, Player) and (not only_online or only_online and user.is_online)]
 
-    def get_viewers(self) -> list[str]:
-        return [username for username, user in self.users.items() if isinstance(user, Viewer) and user.is_online]
+    def get_viewers(self, only_online: bool = True) -> list[str]:
+        return [username for username, user in self.users.items() if isinstance(user, Viewer) and (not only_online or only_online and user.is_online)]
 
-    def get_admins(self) -> list[str]:
-        return [username for username, user in self.users.items() if isinstance(user, Admin) and user.is_online]
+    def get_admins(self, only_online: bool = True) -> list[str]:
+        return [username for username, user in self.users.items() if isinstance(user, Admin) and (not only_online or only_online and user.is_online)]
 
     def is_admin(self, username: str) -> bool:
         return isinstance(self.users.get(username, Viewer('')), Admin)
@@ -136,6 +177,16 @@ class Game:
         user = self.users.get(username)
         if user is None:
             self.__throw_if_allowed(UserManagementError, 'Tried to get info about non-existent user')
+            return {}
+        return user.json()
+
+    def get_player(self, username: str) -> dict:
+        user = self.users.get(username)
+        if user is None:
+            self.__throw_if_allowed(UserManagementError, 'Tried to get info about non-existent user')
+            return {}
+        if not isinstance(user, Player):
+            self.__throw_if_allowed(UserManagementError, 'Tried to get submission info about non-player')
             return {}
         user_info = user.json()
         user_info['submissions-left'] = MAX_SUBMISSION_COUNT - len(user_info['submissions'])

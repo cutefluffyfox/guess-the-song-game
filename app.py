@@ -7,7 +7,6 @@ from flask_socketio import SocketIO, join_room, leave_room, emit
 from flask_session import Session
 
 from scripts.game_rules import DEFAULT_IFRAME_LINK, POSSIBLE_SUBMITTERS, ADMIN_USERNAME
-from scripts import chat
 from scripts import game
 
 # load environment variables
@@ -28,7 +27,6 @@ ADMIN = environ['ADMIN_USERNAME']
 
 # game-related global variables
 GAME = game.Game('main', throw_exceptions=False)
-CHAT = chat.Chat()
 
 Session(app)
 
@@ -42,15 +40,17 @@ def publish_link(to: str):
 
 
 def publish_player_info(username: str):
-    emit('user-info', GAME.get_user(username), to=username)
+    emit('user-info', GAME.get_player(username), to=username)
 
 
 def send_chat_status(username: str, message: str, to: str):
-    emit('status', {'msg': message, 'username': username, 'color': 'lime'}, to=to)
+    global GAME
+    emit('status', {'msg': GAME.chat.add_message(text=message, username=username, kind='status'), 'username': username}, to=to)
 
 
 def send_chat_message(username: str, message: str, to: str):
-    emit('message', {'msg': CHAT.process(message), 'username': username, 'color': 'lime'}, to=to)
+    global GAME
+    emit('message', {'msg': GAME.chat.add_message(text=message, username=username, kind='message'), 'username': username, 'color': GAME.get_user(username)['color']}, to=to)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -137,6 +137,8 @@ def prediction(message):
         # TODO: remove it
         from random import randint
         GAME.score_submission(username=username, submission_id=len(GAME.get_user_submissions(username))-1, score=randint(0, 4))
+        GAME.update_leaderboard({username: 10})
+        publish_leaderboard(to=session.get('room'))
 
         submissions = GAME.get_submissions()
         for admin in GAME.get_admins():
