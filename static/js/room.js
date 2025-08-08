@@ -9,7 +9,7 @@ $(document).ready(function(){
     socket.emit('left', {});
   });
   socket.on('status', function(data) {
-      var shouldScroll = Math.ceil($('#chat')[0].scrollTop + $('#chat')[0].clientHeight) >= $('#chat')[0].scrollHeight;
+      var shouldScroll = Math.ceil(10 + $('#chat')[0].scrollTop + $('#chat')[0].clientHeight) >= $('#chat')[0].scrollHeight;
       $('#chat').append('<div class="chat-message">' + '&lt;' + data.msg + '&gt;' + '</div>');
       if (shouldScroll) {
           console.log("it should scroll");
@@ -68,6 +68,19 @@ $(document).ready(function(){
       socket.disconnect();
       // go back to the login page
       window.location.href = "{{ url_for('index') }}";
+  });
+  $('#change-leaderboard').click(function(e) {
+      text = $('#admin-leaderboard').val();
+      if (!text) return;
+      socket.emit('leaderboard-change', {data: text});
+  });
+  $('#change-stream').click(function(e) {
+      text = $('#stream-link').val();
+      if (!text) return;
+      socket.emit('stream-change', {link: text});
+  });
+  $('#default-stream').click(function(e) {
+      socket.emit('stream-change', {link: "default"});
   });
   $('#send').click(function(e) {
       text = $('#text').val();
