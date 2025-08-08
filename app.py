@@ -6,7 +6,7 @@ from datetime import timedelta
 from flask_socketio import SocketIO, join_room, leave_room, emit
 from flask_session import Session
 
-from scripts.game_rules import DEFAULT_IFRAME_LINK, POSSIBLE_SUBMITTERS, ADMIN_USERNAME
+from scripts.game_rules import DEFAULT_IFRAME_LINK, POSSIBLE_SUBMITTERS, ADMIN_USERNAME, TEXT_TO_EMOTE
 from scripts import game
 
 # load environment variables
@@ -50,7 +50,7 @@ def send_chat_status(username: str, message: str, to: str):
 
 def send_chat_message(username: str, message: str, to: str):
     global GAME
-    emit('message', {'msg': GAME.chat.add_message(text=message, username=username, kind='message'), 'username': username, 'color': GAME.get_user(username)['color']}, to=to)
+    emit('message', {'msg': GAME.chat.add_message(text=message, username=username, kind='message'), 'username': ADMIN_USERNAME if username == ADMIN else username, 'color': GAME.get_user(username)['color']}, to=to)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -63,6 +63,8 @@ def index():
 def room():
     global GAME
 
+    emotes = [{'keyword': key, 'link': link} for key, link in TEXT_TO_EMOTE.items()]
+
     if request.method == 'POST':
         username = request.form['username']
 
@@ -70,10 +72,10 @@ def room():
         session['username'] = username
         session['room'] = GAME.room_name
 
-        return render_template('./room-admin.html' if username == ADMIN else './room.html', session=session, possible_submitters=POSSIBLE_SUBMITTERS)
+        return render_template('./room-admin.html' if username == ADMIN else './room.html', session=session, possible_submitters=POSSIBLE_SUBMITTERS, emotes=emotes)
     else:
         if session.get('room') is not None:
-            return render_template('./room-admin.html' if session.get('username') == ADMIN else './room.html', session=session, possible_submitters=POSSIBLE_SUBMITTERS)
+            return render_template('./room-admin.html' if session.get('username') == ADMIN else './room.html', session=session, possible_submitters=POSSIBLE_SUBMITTERS, emotes=emotes)
         else:
             return redirect(url_for('index'))
 
@@ -82,8 +84,6 @@ def room():
 def text(message):
     room = session.get('room')
     username = session.get('username')
-    if username == ADMIN:
-        username = ADMIN_USERNAME
     send_chat_message(message=message['msg'], username=username, to=room)
 
 

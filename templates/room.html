@@ -117,21 +117,9 @@
         <input class="full" type="text" id="text" placeholder="Enter your message here" autocomplete="off">
       </div>
         <div class="container-grid bg-white-transparent">
-          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
-          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
-          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
-          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
-          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
-          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
-          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
-          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
-          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
-          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
-          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
-          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
-          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
-          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
-          <button><img class="emo-ticon" src="static/images/smile.webp"></button>
+          {% for emote in emotes %}
+            <button><img class="emo-ticon" src="{{ emote['link'] }}" title="{{ emote['keyword'] }}"></button>
+          {% endfor %}
       </div>
     </div>
   </div>

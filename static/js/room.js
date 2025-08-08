@@ -67,7 +67,7 @@ $(document).ready(function(){
   socket.on('redirect', function(data) {
       socket.disconnect();
       // go back to the login page
-      window.location.href = "{{ url_for('index') }}";
+      window.location.href = location.protocol + '//' + document.domain + ':' + location.port + '/';
   });
   $('#change-leaderboard').click(function(e) {
       text = $('#admin-leaderboard').val();
@@ -122,6 +122,6 @@ function leave_room() {
   socket.emit('left', {}, function() {
       socket.disconnect();
       // go back to the login page
-      window.location.href = "{{ url_for('index') }}";
+      window.location.href = location.protocol + '//' + document.domain + ':' + location.port + '/';
   });
 };
