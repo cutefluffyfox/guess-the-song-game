@@ -8,13 +8,11 @@
     <link href="../static/style.css" rel="stylesheet" />
 
     <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
-      <script type="text/javascript" src="//cdn.socket.io/4.4.1/socket.io.min.js"></script>
-      <script src="{{ url_for('static', filename='js/room.js') }}" charset="utf-8"></script>
+    <script type="text/javascript" src="//cdn.socket.io/4.4.1/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/room.js') }}" charset="utf-8"></script>
   </head>
 
 <body class="text-center">
-
-
 <div class="container">
   <h2 class="h4 mb-0 text-shadow" style="line-height: 0.5;">LeVoice's</h2>
   <h1 class="h2 text-shadow" style="margin-bottom: -53px">Guess The Song!</h1>
@@ -102,10 +100,10 @@
     <div class="col-xl-2 col-min-width-300px py-4">
       <h3 class="h5 text-shadow text-left">Le Chat</h3>
       <div class="bg-white-transparent mb-3">
-        <div id="chat" style="resize: none;overflow-y: scroll;text-align:left;" >
-<!--            <div class="chat-message">-->
+        <div id="chat" style="resize: none;overflow-y: scroll;text-align:left;overflow-x: hidden;" >
+<!--            <div class="chat-message" id="msg_qwerty">-->
 <!--              <span class="username" style="color: orange">CuteFluffyFox:</span>-->
-<!--			  <span class="message">This is so wowie holy moly<img class="emo-ticon" src="static/images/smile.webp">jdfskljsdf</span>-->
+<!--			  <span class="message">This is so wowie holy moly <img class="emo-ticon" src="static/images/smile.webp"> this is real</span>-->
 <!--            </div>-->
 <!--			<div class="chat-message">-->
 <!--              <span class="username" style="color: lime">Layla:</span>-->
@@ -124,5 +122,15 @@
     </div>
   </div>
 </div>
-  </body>
+
+<!--chat moderation pop-up window-->
+<div id="chat-context-menu" style="display: none;">
+  <button>Delete this</button>
+  <button>Delete all</button>
+  <button>Mute for the game</button>
+</div>
+
+<script src="{{ url_for('static', filename='js/context-menu.js') }}" charset="utf-8"></script>
+
+</body>
 </html>

@@ -31,14 +31,14 @@ class CharacterReplaceProcessor(MessageProcessor):
 class WordReplaceProcessor(MessageProcessor):
     """Replaces all occurrences of `keyword` in text. Only if it's a separate word"""
 
-    punctuation: str = '\n\t ,.?![](){}\''
+    punctuation: str = '\n\t ,.?![](){}:\''
 
     def __init__(self, keyword: str, link: str):
         super().__init__(keyword=keyword, link=link)
 
     def process(self, text: str) -> str:
         # TODO: optimize this abomination
-        text = ' ' + text + ' '
+        text = ' ' + text + ' '  # TODO: swap back to regex & make it case-insensitive
         for start in self.punctuation:
             for end in self.punctuation:
                 while start + self.keyword + end in text:
@@ -51,12 +51,14 @@ class Message:
     time: datetime
     author: str
     kind: str
+    visible: bool
 
     def __init__(self, text: str, username: str, kind: str = 'message'):
         self.text = text
         self.author = username
         self.kind = kind
         self.time = datetime.now()
+        self.visible = True
 
     @property
     def id(self) -> int:
@@ -91,9 +93,11 @@ class Chat:
     def add_message(self, text: str, username: str, kind: str = 'message'):
         message = Message(text=text, username=username, kind=kind)
         self.messages.append(message)
-        return self.__process(str(message))
+        return self.__process(str(message), safe=True)
 
-    def __process(self, message: str):
+    def __process(self, message: str, safe: bool = False):
+        if safe:
+            message = message.replace('<', '&lt;').replace('>', '&gt;')
         for processor in self.processors:
             message = processor.process(message)
         return message
