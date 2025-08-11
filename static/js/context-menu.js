@@ -1,3 +1,5 @@
+var showChatModeration = false;
+
 document.onclick = function(e) {  // hide context menu when out of focus
   var chatContextMenu = document.getElementById("chat-context-menu");
   chatContextMenu.style.display = 'none';
@@ -20,7 +22,5 @@ document.oncontextmenu = function(e) {
      document.getElementById('chat-delete-single').onclick = function() { delete_message(blockId, false, false); }
      document.getElementById('chat-delete-all').onclick = function() { delete_message(blockId, true, false); }
      document.getElementById('chat-mute-user').onclick = function() { delete_message(blockId, true, true); }
-
-//    chatContextMenu.innerHTML = chatContextMenu.innerHTML;
   }
 }

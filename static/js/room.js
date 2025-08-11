@@ -43,8 +43,8 @@ $(document).ready(function(){
       var submitBnt = document.getElementById("prediction-submit");
       submitBnt.innerHTML = 'SEND <i>(' + data["submissions-left"] + ' Attempts left)</i>';
       var chatTextArea = document.getElementById("text");
-      chatTextArea.disabled = !data["can_chat"];
-      if (data["can_chat"]) {
+      chatTextArea.disabled = !data["permissions"]["can_chat"];
+      if (data["permissions"]["can_chat"]) {
         chatTextArea.placeholder = "Enter your message here"
       } else {
         chatTextArea.placeholder = "You are muted till the end of the game"

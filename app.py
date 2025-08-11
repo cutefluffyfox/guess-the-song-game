@@ -7,6 +7,7 @@ from flask_socketio import SocketIO, join_room, leave_room, emit
 from flask_session import Session
 
 from scripts.game_rules import DEFAULT_IFRAME_LINK, POSSIBLE_SUBMITTERS, ADMIN_USERNAME, TEXT_TO_EMOTE
+from scripts.permissions import VIEWER_PERMISSIONS, PLAYER_PERMISSIONS, ADMIN_PERMISSIONS
 from scripts import game
 
 # load environment variables
@@ -40,7 +41,7 @@ def publish_link(to: str):
 
 
 def publish_player_info(username: str):
-    emit('user-info', GAME.get_player(username), to=username)
+    emit('user-info', GAME.get_user(username), to=username)
 
 
 def publish_clean_chat(messages: list[str], to: str):
@@ -56,7 +57,7 @@ def send_chat_status(username: str, message: str, to: str):
 def send_chat_message(username: str, message: str, to: str):
     global GAME
     msg = GAME.chat.add_message(text=message, username=username, kind='message')
-    if not GAME.user_can_chat(username):
+    if not GAME.user_has_permission(username, permission='can_chat'):
         return
     emit('message', {
         'msg': GAME.chat.process(msg),
@@ -141,7 +142,7 @@ def stream_change(data):
     room = session.get('room')
     username = session.get('username')
 
-    if username != ADMIN:
+    if not GAME.user_has_permission(username, permission='can_moderate_chat'):
         return
 
     if not data['msg_id'].lstrip('-').isdigit():
@@ -201,9 +202,11 @@ def join(*args):
     join_room(username)
 
     if username == ADMIN:
-        GAME.add_admin(username=username)
+        GAME.add_user(username=username, permissions=ADMIN_PERMISSIONS)
     else:
-        GAME.add_player(username=username)
+        GAME.add_user(username=username, permissions=PLAYER_PERMISSIONS, points=0)  # TODO: swap to viewer
+    if username == 'cutefluffyfox':
+        GAME.change_permissions(username=username, permissions={'can_moderate_chat': True})
 
     send_chat_status(message=f'welcome in game {ADMIN_USERNAME if GAME.is_admin(username) else username}', username=username, to=room)
     publish_player_info(username=username)
