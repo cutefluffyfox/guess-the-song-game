@@ -43,14 +43,27 @@ def publish_player_info(username: str):
     emit('user-info', GAME.get_player(username), to=username)
 
 
+def publish_clean_chat(messages: list[str], to: str):
+    emit('clear-chat', messages, to=to)
+
+
 def send_chat_status(username: str, message: str, to: str):
     global GAME
-    emit('status', {'msg': GAME.chat.add_message(text=message, username=username, kind='status'), 'username': username}, to=to)
+    msg = GAME.chat.add_message(text=message, username=username, kind='status')
+    emit('status', {'msg': GAME.chat.process(msg), 'username': username}, to=to)
 
 
 def send_chat_message(username: str, message: str, to: str):
     global GAME
-    emit('message', {'msg': GAME.chat.add_message(text=message, username=username, kind='message'), 'username': ADMIN_USERNAME if username == ADMIN else username, 'color': GAME.get_user(username)['color']}, to=to)
+    msg = GAME.chat.add_message(text=message, username=username, kind='message')
+    if not GAME.user_can_chat(username):
+        return
+    emit('message', {
+        'msg': GAME.chat.process(msg),
+        'username': ADMIN_USERNAME if username == ADMIN else username,
+        'color': GAME.get_user(username)['color'],
+        'msg_id': str(msg.id),
+    }, to=to)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -121,6 +134,33 @@ def stream_change(message):
     publish_link(to=room)
 
 
+@socketio.on('chat-action', namespace='/room')
+def stream_change(data):
+    global GAME
+
+    room = session.get('room')
+    username = session.get('username')
+
+    if username != ADMIN:
+        return
+
+    if not data['msg_id'].lstrip('-').isdigit():
+        return
+
+    message_id = int(data['msg_id'])
+    message = GAME.chat.find_message(message_id)
+    delete_messages: list[str] = [str(message.id)]
+
+    if data.get('mute', False):
+        GAME.mute_user(message.author)
+
+    if data.get('all', False):
+        delete_messages.extend([str(msg.id) for msg in GAME.chat.get_last_messages(username=message.author)])
+
+    publish_clean_chat(messages=delete_messages, to=room)
+    publish_player_info(username=message.author)
+
+
 @socketio.on('prediction', namespace='/room')
 def prediction(message):
     global GAME
@@ -178,6 +218,10 @@ def left(*args):
 
     room = session.get('room')
     username = session.get('username')
+
+    if username is None:
+        return
+
     leave_room(room)
     leave_room(username)
     GAME.remove_user(username=username)

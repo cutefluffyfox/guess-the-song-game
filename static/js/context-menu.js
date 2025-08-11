@@ -6,9 +6,10 @@ document.onclick = function(e) {  // hide context menu when out of focus
 document.oncontextmenu = function(e) {
   var element = e.target
   // process chat message context menu
-  console.log(element)
   if (element.className.startsWith("message")) {
     var chatContextMenu = document.getElementById("chat-context-menu");
+
+    var blockId = element.id.slice(4);
 
     e.preventDefault();
     chatContextMenu.style.position = "absolute";
@@ -16,27 +17,10 @@ document.oncontextmenu = function(e) {
     chatContextMenu.style.top = e.clientY + 'px';
     chatContextMenu.style.display = 'block';
 
+     document.getElementById('chat-delete-single').onclick = function() { delete_message(blockId, false, false); }
+     document.getElementById('chat-delete-all').onclick = function() { delete_message(blockId, true, false); }
+     document.getElementById('chat-mute-user').onclick = function() { delete_message(blockId, true, true); }
+
 //    chatContextMenu.innerHTML = chatContextMenu.innerHTML;
   }
 }
-
-//
-//// context menu for chat
-//var rgtClickContextMenu = document.getElementById('chat');
-//
-//
-//document.oncontextmenu = function(e) {
-//  alert(e.target.id);
-////  var elmnt = e.target
-////  if (elmnt.className.startsWith("cls-context-menu")) {
-////    e.preventDefault();
-////    var eid = elmnt.id.replace(/link-/, "")
-////    rgtClickContextMenu.style.left = e.pageX + 'px'
-////    rgtClickContextMenu.style.top = e.pageY + 'px'
-////    rgtClickContextMenu.style.display = 'block'
-////    var toRepl = "to=" + eid.toString()
-////    rgtClickContextMenu.innerHTML = rgtClickContextMenu.innerHTML.replace(/to=\d+/g, toRepl)
-////    alert(rgtClickContextMenu.innerHTML.toString())
-////  }
-//  alert(rgtClickContextMenu.innerHTML.toString());
-//}

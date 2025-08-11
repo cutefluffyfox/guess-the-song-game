@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 import hashlib
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from scripts.game_rules import TEXT_TO_EMOTE
 
@@ -59,6 +59,8 @@ class Message:
         self.kind = kind
         self.time = datetime.now()
         self.visible = True
+        if self.text is None or self.author is None:
+            raise ValueError(f'WHAT: {username} & {text}')
 
     @property
     def id(self) -> int:
@@ -90,14 +92,30 @@ class Chat:
             else:
                 raise NotImplementedError('Non-string keywords are not supported yet')
 
-    def add_message(self, text: str, username: str, kind: str = 'message'):
+    def add_message(self, text: str, username: str, kind: str = 'message') -> Message:
         message = Message(text=text, username=username, kind=kind)
         self.messages.append(message)
-        return self.__process(str(message), safe=True)
+        return message
 
-    def __process(self, message: str, safe: bool = False):
+    def process(self, message: Message or str, safe: bool = False) -> str:
+        message = str(message)
         if safe:
             message = message.replace('<', '&lt;').replace('>', '&gt;')
         for processor in self.processors:
             message = processor.process(message)
         return message
+
+    def find_message(self, message_id: int) -> Message or None:
+        for message in self.messages:
+            if message.id == message_id:
+                return message
+
+    def get_last_messages(self, username: str, time_window: timedelta = timedelta(minutes=10)) -> list[Message]:
+        now = datetime.now()
+        messages: list[Message] = []
+        for message in self.messages[::-1]:
+            if message.time + time_window < now:
+                break
+            if message.author == username:
+                messages.append(message)
+        return messages[::-1]

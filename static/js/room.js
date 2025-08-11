@@ -18,10 +18,9 @@ $(document).ready(function(){
   });
   socket.on('message', function(data) {
       var shouldScroll = Math.ceil(10 + $('#chat')[0].scrollTop + $('#chat')[0].clientHeight) >= $('#chat')[0].scrollHeight;
-      var msg = '<div class="chat-message"><span class="username" style="color: ' + data.color + '">' + data.username + ': </span><span class="message">' + data.msg + '</span></div>'
+      var msg = '<div class="chat-message"><span class="username" style="color: ' + data.color + '">' + data.username + ': </span><span class="message" id="msg_' + data.msg_id + '">' + data.msg + '</span></div>'
       $('#chat').append(msg);
       if (shouldScroll) {
-          console.log("it should scroll");
           $('#chat').scrollTop($('#chat')[0].scrollHeight);
       }
   });
@@ -43,6 +42,13 @@ $(document).ready(function(){
       }
       var submitBnt = document.getElementById("prediction-submit");
       submitBnt.innerHTML = 'SEND <i>(' + data["submissions-left"] + ' Attempts left)</i>';
+      var chatTextArea = document.getElementById("text");
+      chatTextArea.disabled = !data["can_chat"];
+      if (data["can_chat"]) {
+        chatTextArea.placeholder = "Enter your message here"
+      } else {
+        chatTextArea.placeholder = "You are muted till the end of the game"
+      }
   });
   socket.on('score', function(data) {
       $('#leaderboard').empty();
@@ -63,6 +69,14 @@ $(document).ready(function(){
   socket.on('stream-change', function(data) {
       link = data["link"];
       document.getElementById('stream').src = link;
+  });
+  socket.on('clear-chat', function(data) {
+      for (const msgId of data){
+        var element = document.getElementById('msg_' + msgId);
+        if (element) {
+          element.innerHTML = "[message deleted]";
+        }
+      }
   });
   socket.on('redirect', function(data) {
       socket.disconnect();
@@ -124,4 +138,10 @@ function leave_room() {
       // go back to the login page
       window.location.href = location.protocol + '//' + document.domain + ':' + location.port + '/';
   });
+};
+
+
+function delete_message(blockId, allMessages, muteUser) {
+  console.log(blockId);
+  socket.emit('chat-action', {msg_id: blockId, all: allMessages, mute: muteUser});
 };

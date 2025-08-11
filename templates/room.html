@@ -7,6 +7,11 @@
     <link href="../static/bootstrap.min.css" rel="stylesheet" />
     <link href="../static/style.css" rel="stylesheet" />
 
+    <!-- Icons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
+    <!-- Jquery and Custom code -->
     <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
     <script type="text/javascript" src="//cdn.socket.io/4.4.1/socket.io.min.js"></script>
     <script src="{{ url_for('static', filename='js/room.js') }}" charset="utf-8"></script>
@@ -125,9 +130,9 @@
 
 <!--chat moderation pop-up window-->
 <div id="chat-context-menu" style="display: none;">
-  <button>Delete this</button>
-  <button>Delete all</button>
-  <button>Mute for the game</button>
+  <button id="chat-delete-single"><ion-icon name="trash"></ion-icon></button>
+  <button id="chat-delete-all"><ion-icon name="skull"></ion-icon></button>
+  <button id="chat-mute-user"><ion-icon src="{{ url_for('static', filename='images/mute.svg') }}"></ion-icon></button>
 </div>
 
 <script src="{{ url_for('static', filename='js/context-menu.js') }}" charset="utf-8"></script>

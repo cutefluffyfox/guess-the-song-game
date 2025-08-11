@@ -42,6 +42,7 @@ class Submission:
 
 class User:
     is_online: bool = False
+    can_chat: bool = True
     username: str
     color: str
 
@@ -49,6 +50,7 @@ class User:
         from random import choice
         self.username = username
         self.is_online = False
+        self.can_chat = True
         self.color = (
             color
             if isinstance(color, str) else
@@ -76,7 +78,7 @@ class User:
         )
 
     def json(self) -> dict:
-        return {'username': self.username, 'color': self.color}
+        return {'username': self.username, 'color': self.color, 'can_chat': self.can_chat}
 
     @staticmethod
     def __from_hex(color: str) -> str:
@@ -116,7 +118,8 @@ class Player(User):
             'username': self.username,
             'color': self.color,
             'points': self.points,
-            'submissions': [submission.json() for submission in self.submissions]
+            'submissions': [submission.json() for submission in self.submissions],
+            'can_chat': self.can_chat
         }
 
 
@@ -293,4 +296,15 @@ class Game:
             self.__throw_if_allowed(UserManagementError, 'Attempted to get submissions of non-player')
             return
         return self.users[username].json()['submissions']
+
+    def mute_user(self, username: str):
+        if not self.users.get(username):
+            self.__throw_if_allowed(UserManagementError, 'Attempted to get submissions of non-existent user')
+            return
+        self.users[username].can_chat = False
+
+    def user_can_chat(self, username: str) -> bool:
+        if not self.users.get(username):
+            return False
+        return self.users[username].can_chat
 
