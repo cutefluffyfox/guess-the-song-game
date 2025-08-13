@@ -8,7 +8,7 @@ document.onclick = function(e) {  // hide context menu when out of focus
 document.oncontextmenu = function(e) {
   var element = e.target
   // process chat message context menu
-  if (element.className.startsWith("message")) {
+  if (showChatModeration && element.className.startsWith("message")) {
     var chatContextMenu = document.getElementById("chat-context-menu");
 
     var blockId = element.id.slice(4);

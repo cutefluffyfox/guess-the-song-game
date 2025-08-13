@@ -42,6 +42,8 @@ $(document).ready(function(){
       }
       var submitBnt = document.getElementById("prediction-submit");
       submitBnt.innerHTML = 'SEND <i>(' + data["submissions-left"] + ' Attempts left)</i>';
+
+      // check permission to chat
       var chatTextArea = document.getElementById("text");
       chatTextArea.disabled = !data["permissions"]["can_chat"];
       if (data["permissions"]["can_chat"]) {
@@ -49,6 +51,10 @@ $(document).ready(function(){
       } else {
         chatTextArea.placeholder = "You are muted till the end of the game"
       }
+
+      // check permission to moderate chat
+      showChatModeration = data["permissions"]["can_moderate_chat"];
+
   });
   socket.on('score', function(data) {
       $('#leaderboard').empty();

@@ -195,7 +195,6 @@ class Game:
         user_info = user.json()
         if self.is_player(user):
             user_info['submissions-left'] = MAX_SUBMISSION_COUNT - len(user_info['submissions'])
-        print(user.json(), self.is_player(user), user_info)
         return user_info
 
     def add_user(self, username: str, permissions: dict[str, bool] = None, points: float or None = None):
