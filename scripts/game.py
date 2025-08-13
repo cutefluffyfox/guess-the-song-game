@@ -50,11 +50,11 @@ class User:
 
     def __init__(self, username: str, color: str or None = None, points: float or None = None, permissions: dict[str, bool] = None):
         self.username = username
-        self.points = points
+        self.points = points if points else 0
         self.submissions = list()
 
         # base permissions
-        self.permissions = BASE_PERMISSIONS
+        self.permissions = BASE_PERMISSIONS.copy()
         self.permissions['can_chat'] = True
         if permissions:
             for key, val in permissions.items():

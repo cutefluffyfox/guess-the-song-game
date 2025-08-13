@@ -238,9 +238,9 @@ def join(*args):
     join_room(username)
 
     if username == ADMIN:
-        GAME.add_user(username=username, permissions=ADMIN_PERMISSIONS)
+        GAME.add_user(username=username, permissions=ADMIN_PERMISSIONS.copy(), points=0)
     else:
-        GAME.add_user(username=username, permissions=PLAYER_PERMISSIONS, points=0)  # TODO: swap to viewer
+        GAME.add_user(username=username, permissions=PLAYER_PERMISSIONS.copy(), points=0)  # TODO: swap to viewer
 
     if username == 'cutefluffyfox':
         GAME.change_permissions(username=username, permissions={'can_moderate_chat': True, 'can_manage_users': True})
@@ -276,12 +276,12 @@ class UserPermissionsAPI(Resource):
     def get(self, username: str) -> list[dict]:
         global GAME
 
-        request_username = session.get('username')
-
-        if request_username and GAME.user_has_permission(request_username, permission='can_manage_users'):
-            return [{'name': permission, 'value': val} for permission, val in GAME.get_user_permissions(username).items() if permission not in AUTOMATIC_DRIVEN_PERMISSIONS]
-
-        return []
+        # TODO: make it private (maybe?)
+        return [
+            {'name': permission, 'value': val}
+            for permission, val in GAME.get_user_permissions(username).items()
+            if permission not in AUTOMATIC_DRIVEN_PERMISSIONS
+        ]
 
 
 api.add_resource(UserPermissionsAPI, '/api/v1/<string:username>/permissions')

@@ -32,6 +32,8 @@ document.oncontextmenu = function(e) {
     var userContextMenu = document.getElementById("user-context-menu");
 
     var username = element.innerHTML;
+    $('#user-context-menu').empty();
+    $('#user-context-menu').html('loading...');
 
     fetch(location.protocol + '//' + document.domain + ':' + location.port + '/api/v1/' + username + '/permissions').then(function(response) {
       return response.json();

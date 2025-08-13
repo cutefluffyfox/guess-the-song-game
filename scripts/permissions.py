@@ -1,5 +1,5 @@
 AUTOMATIC_DRIVEN_PERMISSIONS = {
-    'is_online', 'is_on_the_leaderboard'
+    'is_online', 'is_on_the_leaderboard',
 }
 
 BASE_PERMISSIONS: dict[str, bool] = {
