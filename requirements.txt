@@ -7,3 +7,4 @@ python-socketio==5.11.3
 python-engineio==4.9.1
 flask-session==0.8.0
 opencv-python~=4.8.0.74
+Flask-RESTful~=0.3.9

@@ -52,8 +52,13 @@ $(document).ready(function(){
         chatTextArea.placeholder = "You are muted till the end of the game"
       }
 
+//      console.log(data["permissions"]);
+
       // check permission to moderate chat
       showChatModeration = data["permissions"]["can_moderate_chat"];
+
+      // check permission to moderate users
+      showUserModeration = data["permissions"]["can_manage_users"];
 
   });
   socket.on('score', function(data) {
@@ -146,8 +151,17 @@ function leave_room() {
   });
 };
 
-
 function delete_message(blockId, allMessages, muteUser) {
-  console.log(blockId);
   socket.emit('chat-action', {msg_id: blockId, all: allMessages, mute: muteUser});
+};
+
+function set_permission(username, permission, value) {
+  socket.emit('set-permission', {username: username, permission: permission, value: value});
+};
+
+function make_user_management_menu(username, data) {
+  $('#user-context-menu').empty();
+  for (const permission of data){
+    $('#user-context-menu').append('<button onclick=set_permission(\"' + username + '\",\"' + permission["name"] + '\",' + !permission["value"] + ')>' + permission["name"] + ' : ' + permission["value"] + '</button>');
+  }
 };

@@ -31,7 +31,7 @@
 
 <!--        Example -->
 <!--        <div class="person_div">-->
-<!--          <div class="person_name">yeo</div>-->
+<!--          <div class="username">yeo</div>-->
 <!--          <div class="person_score">69</div>-->
 <!--        </div>-->
 
@@ -134,6 +134,17 @@
   <button id="chat-delete-all"><ion-icon name="skull"></ion-icon></button>
   <button id="chat-mute-user"><ion-icon src="{{ url_for('static', filename='images/mute.svg') }}"></ion-icon></button>
 </div>
+
+
+<!--user moderation pop-up window-->
+<div id="user-context-menu" style="display: none;">
+<!--    {% for permission in permissions %}-->
+<!--      {% if permission not in ["is_online", "is_on_the_leaderboard"] %}-->
+<!--        <button>{{ permission }} : {{ "yes" if permissions[permission] else "no" }} </button>-->
+<!--      {% endif %}-->
+<!--    {% endfor %}-->
+</div>
+
 
 <script src="{{ url_for('static', filename='js/context-menu.js') }}" charset="utf-8"></script>
 

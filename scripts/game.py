@@ -124,6 +124,9 @@ class User:
     def get_permission(self, permission: str) -> bool:
         return self.permissions[permission]
 
+    def get_permissions(self) -> dict[str, bool]:
+        return self.permissions
+
     def json(self):
         self.submissions.sort(key=lambda s: s.submit_time)
         return {
@@ -289,4 +292,9 @@ class Game:
         if not self.users.get(username):
             return False
         return self.users[username].get_permission(permission)
+
+    def get_user_permissions(self, username: str) -> dict[str, bool]:
+        if not self.users.get(username):
+            return {}
+        return self.users[username].get_permissions()
 
