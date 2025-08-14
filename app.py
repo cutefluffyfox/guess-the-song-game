@@ -184,6 +184,27 @@ def chat_action(data):
     publish_player_info(username=message.author)
 
 
+@socketio.on('set-permission', namespace='/room')
+def set_permission(data):
+    global GAME
+
+    username = session.get('username')
+
+    if not GAME.user_has_permission(username, permission='can_manage_users'):
+        return
+
+    user = data['username']
+    permission = data['permission']
+    value = data['value']
+
+    if permission not in BASE_PERMISSIONS:
+        print('unknown permission:', permission)
+        return
+
+    GAME.change_permissions(username=user, permissions={permission: value})
+    publish_player_info(username=user)
+
+
 @socketio.on('check-permission', namespace='/room')
 def check_permission(data):
     global GAME
