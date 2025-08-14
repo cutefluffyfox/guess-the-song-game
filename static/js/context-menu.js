@@ -34,10 +34,11 @@ document.oncontextmenu = function(e) {
     var username = element.innerHTML;
     $('#user-context-menu').empty();
     $('#user-context-menu').html('loading...');
+    socket.emit('check-permission', {username: username});
 
-    fetch(location.protocol + '//' + document.domain + ':' + location.port + '/api/v1/' + username + '/permissions').then(function(response) {
-      return response.json();
-    }).then(function(data) { make_user_management_menu(username, data); })
+//    fetch(location.protocol + '//' + document.domain + ':' + location.port + '/api/v1/' + username + '/permissions').then(function(response) {
+//      return response.json();
+//    }).then(function(data) { make_user_management_menu(username, data); })
 
     e.preventDefault();
     userContextMenu.style.position = "absolute";

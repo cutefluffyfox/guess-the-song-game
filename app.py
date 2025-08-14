@@ -5,7 +5,6 @@ from flask import Flask, render_template, redirect, request, url_for, session
 from datetime import timedelta
 from flask_socketio import SocketIO, join_room, leave_room, emit
 from flask_session import Session
-from flask_restful import Resource, Api
 
 from scripts.game_rules import DEFAULT_IFRAME_LINK, POSSIBLE_SUBMITTERS, ADMIN_USERNAME, TEXT_TO_EMOTE
 from scripts.permissions import BASE_PERMISSIONS, PLAYER_PERMISSIONS, ADMIN_PERMISSIONS, AUTOMATIC_DRIVEN_PERMISSIONS
@@ -23,7 +22,6 @@ app.debug = bool(int(environ['DEBUG']))
 app.config['SECRET_KEY'] = environ['FLASK_SECRET_KEY']
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=3)
-api = Api(app)
 
 DEBUG = bool(environ.get('DEBUG', 0))
 ADMIN = environ['ADMIN_USERNAME']
@@ -48,6 +46,16 @@ def publish_player_info(username: str):
 
 def publish_clean_chat(messages: list[str], to: str):
     emit('clear-chat', messages, to=to)
+
+
+def publish_user_permissions(username: str, to: str):
+    permissions = [
+        {'name': permission, 'value': val}
+        for permission, val in GAME.get_user_permissions(username).items()
+        if permission not in AUTOMATIC_DRIVEN_PERMISSIONS
+    ]
+    emit('show-permissions', {'username': username, 'permissions': permissions}, to=to)
+
 
 
 def send_chat_status(username: str, message: str, to: str):
@@ -150,7 +158,7 @@ def stream_change(message):
 
 
 @socketio.on('chat-action', namespace='/room')
-def stream_change(data):
+def chat_action(data):
     global GAME
 
     room = session.get('room')
@@ -176,26 +184,17 @@ def stream_change(data):
     publish_player_info(username=message.author)
 
 
-@socketio.on('set-permission', namespace='/room')
-def set_permission(data):
+@socketio.on('check-permission', namespace='/room')
+def check_permission(data):
     global GAME
 
-    room = session.get('room')
     username = session.get('username')
 
     if not GAME.user_has_permission(username, permission='can_manage_users'):
         return
 
     user = data['username']
-    permission = data['permission']
-    value = data['value']
-
-    if permission not in BASE_PERMISSIONS:
-        print('unknown permission:', permission)
-        return
-
-    GAME.change_permissions(username=user, permissions={permission: value})
-    publish_player_info(username=user)
+    publish_user_permissions(username=user, to=username)
 
 
 @socketio.on('prediction', namespace='/room')
@@ -270,21 +269,6 @@ def left(*args):
     send_chat_status(message=f'{ADMIN_USERNAME if GAME.is_admin(username) else username} has left the game', username=username, to=room)
     publish_leaderboard(to=room)
     publish_link(to=room)
-
-
-class UserPermissionsAPI(Resource):
-    def get(self, username: str) -> list[dict]:
-        global GAME
-
-        # TODO: make it private (maybe?)
-        return [
-            {'name': permission, 'value': val}
-            for permission, val in GAME.get_user_permissions(username).items()
-            if permission not in AUTOMATIC_DRIVEN_PERMISSIONS
-        ]
-
-
-api.add_resource(UserPermissionsAPI, '/api/v1/<string:username>/permissions')
 
 
 if __name__ == '__main__':

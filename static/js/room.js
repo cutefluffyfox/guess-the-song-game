@@ -24,6 +24,9 @@ $(document).ready(function(){
           $('#chat').scrollTop($('#chat')[0].scrollHeight);
       }
   });
+  socket.on('show-permissions', function(data) {
+      make_user_management_menu(data["username"], data["permissions"]);
+  });
   socket.on('user-info', function(data) {
       $('#user-submissions').empty();
       $('#user-submissions').append('<h4 class="h4">~ Your guesses ~</h4>');
