@@ -55,13 +55,18 @@ $(document).ready(function(){
         chatTextArea.placeholder = "You are muted till the end of the game"
       }
 
-//      console.log(data["permissions"]);
+      // check permission to play
+      var gameSubmitArea = document.getElementById("submit-menu");
+      gameSubmitArea.style.display = data["permissions"]["can_play"] ? 'block' : 'none';
 
       // check permission to moderate chat
       showChatModeration = data["permissions"]["can_moderate_chat"];
 
       // check permission to moderate users
       showUserModeration = data["permissions"]["can_manage_users"];
+
+      // show submit menu
+      showSubmitMenu = data["permissions"]["can_play"];
 
   });
   socket.on('score', function(data) {
