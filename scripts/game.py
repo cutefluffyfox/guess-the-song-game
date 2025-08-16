@@ -162,20 +162,14 @@ class Game:
             })
         return leaderboard
 
-    def get_submissions(self) -> dict[str, list[dict]]:
-        submissions = dict()
-        for username in self.get_players():
-            submissions[username] = self.users[username].json()['submissions']
-        return submissions
-
     def get_players(self, only_online: bool = True) -> list[str]:
         return [username for username, user in self.users.items() if self.is_player(user) and (not only_online or only_online and user.is_online)]
 
     def get_viewers(self, only_online: bool = True) -> list[str]:
         return [username for username, user in self.users.items() if self.is_viewer(user) and (not only_online or only_online and user.is_online)]
 
-    def get_admins(self, only_online: bool = True) -> list[str]:
-        return [username for username, user in self.users.items() if self.is_admin(user) and (not only_online or only_online and user.is_online)]
+    def get_with_permission(self, permission: str, only_online: bool = True) -> list[str]:
+        return [username for username, user in self.users.items() if user.get_permission(permission) and (not only_online or only_online and user.is_online)]
 
     def is_admin(self, username: str or User) -> bool:
         if isinstance(username, User):
@@ -272,6 +266,19 @@ class Game:
             self.__throw_if_allowed(RuntimeError, 'Attempted to score non-existent submission (invalid id)')
             return
         self.users[username].submissions[submission_id].set_score(score)
+
+
+    def get_submissions(self) -> list[dict]:
+        submissions = []
+        for username, user in self.users.items():
+            if not user.get_submissions():
+                continue
+            submissions.append({
+                'username': username,
+                'submissions': user.json()['submissions']
+            })
+        submissions.sort(key=lambda usr: min([s['submit_time'] for s in usr['submissions']]))
+        return submissions
 
     def get_user_submissions(self, username: str) -> list[dict]:
         if not self.users.get(username):

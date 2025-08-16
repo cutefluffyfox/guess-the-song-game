@@ -59,6 +59,21 @@ $(document).ready(function(){
       var gameSubmitArea = document.getElementById("submit-menu");
       gameSubmitArea.style.display = data["permissions"]["can_play"] ? 'block' : 'none';
 
+      // check change-stream permissions
+      var streamChangeArea = document.getElementById("set-stream-menu");
+      streamChangeArea.style.display = data["permissions"]["can_change_stream"] ? 'block' : 'none';
+
+      // check check-submissions permissions
+      var chatArea = document.getElementById("chat");
+      var emotesArea = document.getElementById("emotes-panel");
+      if (data["permissions"]["can_check_submissions"]){
+        chatArea.style.aspectRatio = "2/1";
+        emotesArea.style.display = 'none';
+      } else {
+        chatArea.style.aspectRatio = "400/705";
+        emotesArea.style.display = 'block';
+      }
+
       // check permission to moderate chat
       showChatModeration = data["permissions"]["can_moderate_chat"];
 
@@ -85,9 +100,13 @@ $(document).ready(function(){
 
       console.log(data);
   });
+  socket.on('prediction-queue', function(data) {
+      console.log(data);
+  });
   socket.on('stream-change', function(data) {
       link = data["link"];
-      document.getElementById('stream').src = link;
+      if (document.getElementById('stream').src != link)
+        document.getElementById('stream').src = link;
   });
   socket.on('clear-chat', function(data) {
       for (const msgId of data){

@@ -57,6 +57,9 @@ def publish_user_permissions(username: str, to: str):
     emit('show-permissions', {'username': username, 'permissions': permissions}, to=to)
 
 
+def publish_submission_queue(to: str):
+    emit('prediction-queue', GAME.get_submissions(), to=to)
+
 
 def send_chat_status(username: str, message: str, to: str):
     global GAME
@@ -97,7 +100,7 @@ def room():
         session['room'] = GAME.room_name
 
         return render_template(
-            './room-admin.html' if username == ADMIN else './room.html',
+            './room.html',
             session=session,
             possible_submitters=POSSIBLE_SUBMITTERS,
             emotes=emotes,
@@ -106,7 +109,7 @@ def room():
     else:
         if session.get('room') is not None:
             return render_template(
-                './room-admin.html' if session.get('username') == ADMIN else './room.html',
+                './room.html',
                 session=session,
                 possible_submitters=POSSIBLE_SUBMITTERS,
                 emotes=emotes,
@@ -147,8 +150,9 @@ def stream_change(message):
     room = session.get('room')
     username = session.get('username')
 
-    if username != ADMIN:
+    if not GAME.user_has_permission(username, permission='can_change_stream'):
         return
+
     link = message['link'].strip()
     if link == 'default':
         GAME.stream_url = DEFAULT_IFRAME_LINK
@@ -237,9 +241,8 @@ def prediction(message):
         GAME.update_leaderboard({username: 10})
         publish_leaderboard(to=session.get('room'))
 
-        submissions = GAME.get_submissions()
-        for admin in GAME.get_admins():
-            emit('prediction-queue', submissions, to=admin)
+        for user in GAME.get_with_permission(permission='can_check_submissions', only_online=True):
+            publish_submission_queue(to=user)
         publish_player_info(username=username)
 
 
@@ -263,12 +266,20 @@ def join(*args):
         GAME.add_user(username=username, permissions=PLAYER_PERMISSIONS.copy(), points=0)  # TODO: swap to viewer
 
     if username == 'cutefluffyfox':
-        GAME.change_permissions(username=username, permissions={'can_moderate_chat': True, 'can_manage_users': True})
+        GAME.change_permissions(
+            username=username,
+            permissions={
+                'can_moderate_chat': True,
+                'can_manage_users': True,
+                'can_change_stream': True,
+                'can_play': True,
+                'can_check_submissions': True
+            })
 
     send_chat_status(message=f'welcome in game {ADMIN_USERNAME if GAME.is_admin(username) else username}', username=username, to=room)
     publish_player_info(username=username)
     publish_leaderboard(to=room)
-    publish_link(to=room)
+    publish_link(to=room)  # ideally send to username only, but this helps sync all users
 
 
 @socketio.on('left', namespace='/room')

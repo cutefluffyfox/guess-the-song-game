@@ -289,6 +289,32 @@ font-weight: 600;
     margin-bottom: -2px;
 }
 
+#guesses{
+    color: white;
+    font-size: 1rem;
+}
+
+.submission-guess{
+    display: flex;
+    padding: 0px 15px;
+    border-radius: 10px 0 0 10px;
+    width: 100%;
+    text-align: left;
+}
+
+.guess-song-title{
+    margin-right: 10px;
+}
+
+.guess-author{
+    margin-right: 10px;
+}
+
+input[type='number']{
+    width: 15%;
+    margin-right: 10px;
+}
+
 #text{
     border: solid 2px white;
     padding: 10px 15px;
