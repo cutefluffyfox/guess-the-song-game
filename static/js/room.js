@@ -66,11 +66,14 @@ $(document).ready(function(){
       // check check-submissions permissions
       var chatArea = document.getElementById("chat");
       var emotesArea = document.getElementById("emotes-panel");
+      var submissionsMenu = document.getElementById("submissions-menu");
       if (data["permissions"]["can_check_submissions"]){
         chatArea.style.aspectRatio = "2/1";
         emotesArea.style.display = 'none';
+        submissionsMenu.style.display = 'block';
       } else {
         chatArea.style.aspectRatio = "400/705";
+        submissionsMenu.style.display = 'none';
         emotesArea.style.display = 'block';
       }
 
