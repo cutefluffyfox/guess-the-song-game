@@ -7,7 +7,7 @@ from flask_socketio import SocketIO, join_room, leave_room, emit
 from flask_session import Session
 
 from scripts.game_rules import DEFAULT_IFRAME_LINK, POSSIBLE_SUBMITTERS, ADMIN_USERNAME, TEXT_TO_EMOTE
-from scripts.permissions import BASE_PERMISSIONS, VIEWER_PERMISSIONS, ADMIN_PERMISSIONS, AUTOMATIC_DRIVEN_PERMISSIONS
+from scripts.permissions import BASE_PERMISSIONS, VIEWER_PERMISSIONS, ADMIN_PERMISSIONS, AUTOMATIC_DRIVEN_PERMISSIONS, PLAYER_PERMISSIONS
 from scripts import game
 
 # load environment variables
@@ -279,7 +279,7 @@ def join(*args):
     if username == ADMIN:
         GAME.add_user(username=username, permissions=ADMIN_PERMISSIONS.copy(), points=0)
     else:
-        GAME.add_user(username=username, permissions=VIEWER_PERMISSIONS.copy(), points=0)
+        GAME.add_user(username=username, permissions=PLAYER_PERMISSIONS.copy(), points=0)  # TODO: swap to viewer after leaderboard fix
 
     if username == 'cutefluffyfox':
         GAME.change_permissions(
