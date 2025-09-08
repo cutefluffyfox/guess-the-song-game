@@ -199,7 +199,8 @@ class Game:
             user = User(username=username, permissions=permissions, points=points)
             self.users[username] = user
         else:
-            self.users[username].permissions = permissions
+            pass
+            # self.users[username].permissions = permissions  (ignore permissions is custom were set)
         self.users[username].change_permissions({'is_online': True})
 
     def change_permissions(self, username: str, permissions: dict[str, bool] = None):

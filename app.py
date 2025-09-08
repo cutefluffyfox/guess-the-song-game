@@ -7,7 +7,7 @@ from flask_socketio import SocketIO, join_room, leave_room, emit
 from flask_session import Session
 
 from scripts.game_rules import DEFAULT_IFRAME_LINK, POSSIBLE_SUBMITTERS, ADMIN_USERNAME, TEXT_TO_EMOTE
-from scripts.permissions import BASE_PERMISSIONS, PLAYER_PERMISSIONS, ADMIN_PERMISSIONS, AUTOMATIC_DRIVEN_PERMISSIONS
+from scripts.permissions import BASE_PERMISSIONS, VIEWER_PERMISSIONS, ADMIN_PERMISSIONS, AUTOMATIC_DRIVEN_PERMISSIONS
 from scripts import game
 
 # load environment variables
@@ -57,8 +57,9 @@ def publish_user_permissions(username: str, to: str):
     emit('show-permissions', {'username': username, 'permissions': permissions}, to=to)
 
 
-def publish_submission_queue(to: str):
-    emit('prediction-queue', GAME.get_submissions(), to=to)
+def publish_submission_queue():
+    for user in GAME.get_with_permission(permission='can_check_submissions', only_online=True):
+        emit('prediction-queue', GAME.get_submissions(), to=user)
 
 
 def send_chat_status(username: str, message: str, to: str):
@@ -207,6 +208,7 @@ def set_permission(data):
 
     GAME.change_permissions(username=user, permissions={permission: value})
     publish_player_info(username=user)
+    publish_submission_queue()
 
 
 @socketio.on('check-permission', namespace='/room')
@@ -220,6 +222,21 @@ def check_permission(data):
 
     user = data['username']
     publish_user_permissions(username=user, to=username)
+
+
+@socketio.on('set-score', namespace='/room')
+def prediction(data):
+    global GAME
+
+    username = session.get('username')
+
+    if not GAME.user_has_permission(username, permission='can_check_submissions'):
+        return
+
+    GAME.score_submission(username=data['username'], submission_id=data['submission'], score=data['score'])
+    publish_submission_queue()
+    publish_player_info(username=data['username'])
+
 
 
 @socketio.on('prediction', namespace='/room')
@@ -237,12 +254,11 @@ def prediction(message):
 
         # TODO: remove it
         from random import randint
-        GAME.score_submission(username=username, submission_id=len(GAME.get_user_submissions(username))-1, score=randint(0, 4))
-        GAME.update_leaderboard({username: 10})
+        # GAME.score_submission(username=username, submission_id=len(GAME.get_user_submissions(username))-1, score=None)
+        # GAME.update_leaderboard({username: 10})
         publish_leaderboard(to=session.get('room'))
 
-        for user in GAME.get_with_permission(permission='can_check_submissions', only_online=True):
-            publish_submission_queue(to=user)
+        publish_submission_queue()
         publish_player_info(username=username)
 
 
@@ -263,7 +279,7 @@ def join(*args):
     if username == ADMIN:
         GAME.add_user(username=username, permissions=ADMIN_PERMISSIONS.copy(), points=0)
     else:
-        GAME.add_user(username=username, permissions=PLAYER_PERMISSIONS.copy(), points=0)  # TODO: swap to viewer
+        GAME.add_user(username=username, permissions=VIEWER_PERMISSIONS.copy(), points=0)
 
     if username == 'cutefluffyfox':
         GAME.change_permissions(
@@ -280,6 +296,7 @@ def join(*args):
     publish_player_info(username=username)
     publish_leaderboard(to=room)
     publish_link(to=room)  # ideally send to username only, but this helps sync all users
+    publish_submission_queue()
 
 
 @socketio.on('left', namespace='/room')

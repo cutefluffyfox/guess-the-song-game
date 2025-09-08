@@ -104,7 +104,17 @@ $(document).ready(function(){
       console.log(data);
   });
   socket.on('prediction-queue', function(data) {
+      // data = [{username: str, submissions: [{song: str, submitter: str}]}]
       console.log(data);
+      $('#guesses').empty();
+      for (const submissions of data){
+          var username = submissions["username"];
+          var submissionHtml = '<div class="submission-username">' + username + '</div>';
+          for (const [submissionIdx, submission] of submissions["submissions"].entries()){
+              submissionHtml += '<div class="submission-guess"><input type="number" step="any" name="score" min="0" id="submission-' + username + '-' + submissionIdx + '" value="' + (submission["processed"] ? submission["score"] : 0) + '"><button onclick=set_score(\"' + username + '\",' + submissionIdx + ')>x</button><div class="guess-song-title" style="color: ' + (submission["processed"] ? "white" : "yellow") + ';">' + submission["song"] + '</div><div class="guess-author" style="color: ' + (submission["processed"] ? "white" : "yellow") + ';">' + submission["submitter"] + '</div></div>';
+          }
+          $('#guesses').append('<div class="user-submission bg-white-transparent mb-3">' + submissionHtml + '</div>');
+      }
   });
   socket.on('stream-change', function(data) {
       link = data["link"];
@@ -194,4 +204,11 @@ function make_user_management_menu(username, data) {
   for (const permission of data){
     $('#user-context-menu').append('<button onclick=set_permission(\"' + username + '\",\"' + permission["name"] + '\",' + !permission["value"] + ')>' + permission["name"] + ' : ' + permission["value"] + '</button>');
   }
+};
+
+function set_score(username, submissionIdx) {
+  var score = document.getElementById("submission-" + username + '-' + submissionIdx).valueAsNumber;
+  console.log("submission-" + username + '-' + submissionIdx);
+  console.log(score);
+  socket.emit('set-score', {username: username, submission: submissionIdx, score: score});
 };
