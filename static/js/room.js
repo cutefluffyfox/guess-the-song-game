@@ -89,11 +89,27 @@ $(document).ready(function(){
   });
   socket.on('score', function(data) {
       $('#leaderboard').empty();
-      for (const user of data) {
+      for (const user of data["players"]) {
+         console.log(user);
          var color = (user["is_online"]) ? "white" : "grey";
-         $('#leaderboard').append('<div class="person_div"><div class="person_name"><span class="username" style="color: ' + color + ';">' + user["username"] + '</span></div><div class="person_score">' + user["points"] + '</div></div>');
-         continue;
+         var badges = "";
+         if (user["can_manage_users"]) badges += '<img alt src="https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/1">';
+         if (user["can_moderate_chat"]) badges += '<img alt src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1">';
+         $('#leaderboard').append('<div class="person_div"><div class="person_name"><span class="username" style="color: ' + color + ';">' + user["username"] + '</span>' + badges + '</div><div class="person_score">' + user["points"] + '</div></div>');
       }
+      $('#viewers').empty();
+      for (const user of data["viewers"]) {
+         console.log(user);
+         var color = (user["is_online"]) ? "white" : "grey";
+         var badges = "";
+         if (user["can_manage_users"]) badges += '<img alt src="https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/1">';
+         if (user["can_moderate_chat"]) badges += '<img alt src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1">';
+         $('#viewers').append('<div class="person_div"><div class="person_name"><span class="username" style="color: ' + color + ';">' + user["username"] + '</span>' + badges + '</div></div>');
+      }
+      document.getElementById("viewers").style.display = data["viewers"].length == 0 ? 'none' : 'block';
+      document.getElementById("viewers-title").style.display = data["viewers"].length == 0 ? 'none' : 'block';
+      document.getElementById("leaderboard").style.display = data["players"].length == 0 ? 'none' : 'block';
+      document.getElementById("leaderboard-title").style.display = data["players"].length == 0 ? 'none' : 'block';
   });
   socket.on('result', function(data) {
       result_type = data["type"];

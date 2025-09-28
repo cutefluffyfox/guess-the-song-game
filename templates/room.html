@@ -24,7 +24,7 @@
 
   <div class="row">
     <div class="col-xl-2 col-min-width-300px py-4">
-      <h3 class="h5 text-shadow text-left">Score Board</h3>
+      <h3 class="h5 text-shadow text-left" id="leaderboard-title">Score Board</h3>
 
       <div class="bg-white-transparent mb-4 p-2" id="leaderboard">
         Waiting for socketio to establish connection...
@@ -35,6 +35,11 @@
 <!--          <div class="person_score">69</div>-->
 <!--        </div>-->
 
+      </div>
+
+      <h3 class="h5 text-shadow text-left" id="viewers-title">Viewers</h3>
+      <div class="bg-white-transparent mb-4 p-2" id="viewers">
+        Waiting for socketio to establish connection...
       </div>
 
       <div><button type="button" class="btn btn-danger button-leave-game" onclick=leave_room()>LEAVE GAME <span class="button_arrow">></span></button></div>

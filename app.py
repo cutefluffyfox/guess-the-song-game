@@ -96,6 +96,12 @@ def room():
     if request.method == 'POST':
         username = request.form['username']
 
+        if set(username) - set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_- '):
+            return render_template('homepage.html', message='Invalid username symbols: accepted one [a-zA-Z0-9_- ]')
+
+        if not GAME.user_can_join(username):
+            return render_template('homepage.html', message='User with such username already in the game')
+
         # Store the data in session
         session['username'] = username
         session['room'] = GAME.room_name
@@ -105,7 +111,7 @@ def room():
             session=session,
             possible_submitters=POSSIBLE_SUBMITTERS,
             emotes=emotes,
-            permissions=BASE_PERMISSIONS,
+            permissions=VIEWER_PERMISSIONS,
         )
     else:
         if session.get('room') is not None:
@@ -114,7 +120,7 @@ def room():
                 session=session,
                 possible_submitters=POSSIBLE_SUBMITTERS,
                 emotes=emotes,
-                permissions=BASE_PERMISSIONS,
+                permissions=VIEWER_PERMISSIONS,
             )
         else:
             return redirect(url_for('index'))
@@ -208,6 +214,7 @@ def set_permission(data):
 
     GAME.change_permissions(username=user, permissions={permission: value})
     publish_player_info(username=user)
+    publish_leaderboard(to=session.get('room'))
     publish_submission_queue()
 
 
@@ -279,7 +286,7 @@ def join(*args):
     if username == ADMIN:
         GAME.add_user(username=username, permissions=ADMIN_PERMISSIONS.copy(), points=0)
     else:
-        GAME.add_user(username=username, permissions=PLAYER_PERMISSIONS.copy(), points=0)  # TODO: swap to viewer after leaderboard fix
+        GAME.add_user(username=username, permissions=VIEWER_PERMISSIONS.copy(), points=0)
 
     if username == 'cutefluffyfox':
         GAME.change_permissions(

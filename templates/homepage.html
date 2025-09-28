@@ -18,6 +18,9 @@
 	<h3 class="h3 mb-5 mt-5 font-weight-normal">Welcome to the lobby!</h3>
 	<h4 class="h4 mb-4 mt-5 font-weight-normal">Enter Username:</h4>
     <input type="text" id="username" name="username" class="form-control item-text" placeholder="username" required autofocus><br>
+    {% if message %}
+      <p style="color: red;">{{ message }}</p>
+    {% endif %}
     <button class="btn btn-lg btn-primary btn-block join-lobby" value="submit">Join Lobby</button>
   </form>
 </body>

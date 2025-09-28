@@ -15,8 +15,8 @@ class Submission:
     processed: bool
 
     def __init__(self, song_title: str, submitter: str):
-        if submitter and submitter not in POSSIBLE_SUBMITTERS:
-            raise GameRuleViolation(f'Invalid submitter username')
+        # if submitter and submitter not in POSSIBLE_SUBMITTERS:
+        #     raise GameRuleViolation(f'Invalid submitter username')
         self.song_title = song_title
         self.submitter = submitter
         self.submit_time = datetime.now()
@@ -151,15 +151,29 @@ class Game:
         self.users = dict()
         self.chat = Chat()
 
-    def get_leaderboard(self) -> list[dict]:
-        leaderboard = list()
+    def get_leaderboard(self) -> dict[str, list[dict]]:
+        leaderboard = {
+            'viewers': list(),
+            'players': list(),
+        }
         for username in self.get_players(only_online=False):
             user = self.users[username]
-            leaderboard.append({
+            leaderboard['players'].append({
                 'username': user.username,
                 'points': user.points,
-                'is_online': user.is_online
+                'is_online': user.is_online,
+                'can_manage_users' : user.get_permission('can_manage_users'),
+                'can_moderate_chat' : user.get_permission('can_moderate_chat'),
             })
+        for username in self.get_viewers(only_online=False):
+            user = self.users[username]
+            leaderboard['viewers'].append({
+                'username': user.username,
+                'is_online': user.is_online,
+                'can_manage_users': user.get_permission('can_manage_users'),
+                'can_moderate_chat': user.get_permission('can_moderate_chat'),
+            })
+        leaderboard['players'] = sorted(leaderboard['players'], key=lambda d: d['points'], reverse=True)
         return leaderboard
 
     def get_players(self, only_online: bool = True) -> list[str]:
@@ -198,10 +212,16 @@ class Game:
         if self.users.get(username) is None:
             user = User(username=username, permissions=permissions, points=points)
             self.users[username] = user
-        else:
-            pass
-            # self.users[username].permissions = permissions  (ignore permissions is custom were set)
+        else:  # if user already exists
+            if self.is_player(self.users[username]):
+                self.users[username].change_permissions({'can_check_submissions': False})
+
         self.users[username].change_permissions({'is_online': True})
+
+    def user_can_join(self, username: str):
+        if self.users.get(username) is None:
+            return True
+        return not self.users[username].is_online  # if player with same username online -> don't allow that
 
     def change_permissions(self, username: str, permissions: dict[str, bool] = None):
         if self.users.get(username) is None:
