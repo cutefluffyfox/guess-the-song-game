@@ -2,7 +2,7 @@ from datetime import datetime
 
 from scripts.chat import Chat
 from scripts.errors import GameRuleViolation, UserManagementError, GameErrors
-from scripts.game_rules import MAX_SUBMISSION_COUNT, POSSIBLE_SUBMITTERS, DEFAULT_IFRAME_LINK
+from scripts.game_rules import MAX_SUBMISSION_COUNT, DEFAULT_IFRAME_LINK, USERNAME_COLORS
 from scripts.permissions import BASE_PERMISSIONS, PLAYER_PERMISSIONS
 
 
@@ -69,27 +69,7 @@ class User:
         self.color = (
             color
             if isinstance(color, str) else
-            User.__from_hex(choice([
-                '#e6194B',
-                '#3cb44b',
-                '#ffe119',
-                '#4363d8',
-                '#f58231',
-                '#911eb4',
-                '#42d4f4',
-                '#f032e6',
-                '#bfef45',
-                '#fabed4',
-                '#469990',
-                '#dcbeff',
-                '#9A6324',
-                '#fffac8',
-                '#800000',
-                '#aaffc3',
-                '#808000',
-                '#ffd8b1',
-                '#000075'
-            ]))
+            User.__from_hex(choice(USERNAME_COLORS))
         )
 
     @staticmethod

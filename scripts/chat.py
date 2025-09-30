@@ -88,7 +88,7 @@ class Chat:
         for keyword, link in sorted(TEXT_TO_EMOTE.items(), key=len, reverse=True):
             html = f'<img class="emo-ticon" src="{link}" title="{keyword}">'
             if isinstance(keyword, str):
-                self.processors.append(WordReplaceProcessor(keyword=keyword, link=html))
+                self.processors.append(CharacterReplaceProcessor(keyword=keyword, link=html))
             else:
                 raise NotImplementedError('Non-string keywords are not supported yet')
 
