@@ -48,7 +48,7 @@ def publish_clean_chat(messages: list[str], to: str):
     emit('clear-chat', messages, to=to)
 
 
-def publish_user_permissions(username: str, to: str):
+def show_user_permissions(username: str, to: str):
     permissions = [
         {'name': permission, 'value': val}
         for permission, val in GAME.get_user_permissions(username).items()
@@ -228,7 +228,7 @@ def check_permission(data):
         return
 
     user = data['username']
-    publish_user_permissions(username=user, to=username)
+    show_user_permissions(username=user, to=username)
 
 
 @socketio.on('set-score', namespace='/room')

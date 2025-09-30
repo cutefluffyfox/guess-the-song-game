@@ -53,6 +53,7 @@ $(document).ready(function(){
         chatTextArea.placeholder = "Enter your message here"
       } else {
         chatTextArea.placeholder = "You are muted till the end of the game"
+        chatTextArea.value = "";
       }
 
       // check permission to play
@@ -127,8 +128,10 @@ $(document).ready(function(){
           var username = submissions["username"];
           var submissionHtml = '<div class="submission-username">' + username + '</div>';
           for (const [submissionIdx, submission] of submissions["submissions"].entries()){
-              submissionHtml += '<div class="submission-guess"><input type="number" step="any" name="score" min="0" id="submission-' + username + '-' + submissionIdx + '" value="' + (submission["processed"] ? submission["score"] : 0) + '"><button onclick=set_score(\"' + username + '\",' + submissionIdx + ')>x</button><div class="guess-song-title" style="color: ' + (submission["processed"] ? "white" : "yellow") + ';">' + submission["song"] + '</div><div class="guess-author" style="color: ' + (submission["processed"] ? "white" : "yellow") + ';">' + submission["submitter"] + '</div></div>';
+//              submissionHtml += '<div class="submission-guess"><input type="number" step="any" name="score" min="0" id="submission-' + username + '-' + submissionIdx + '" value="' + (submission["processed"] ? submission["score"] : '') + '"><button onclick=set_score(\"' + username + '\",' + submissionIdx + ')>x</button><div class="guess-song-title" style="color: ' + (submission["processed"] ? "black" : "red") + ';">' + submission["song"] + '</div><div class="guess-author" style="color: ' + (submission["processed"] ? "black" : "red") + ';">' + submission["submitter"] + '</div></div>';
+              submissionHtml += '<div class="submission-guess"><input type="number" step="any" name="score" min="0" id="submission-' + username + '-' + submissionIdx + '" value="' + (submission["processed"] ? submission["score"] : '') + '"><button onclick=set_score(\"' + username + '\",' + submissionIdx + ')>x</button><div class="submission-texts"><div class="row guess-song-title" style="color: ' + (submission["processed"] ? "black" : "red") + ';">' + submission["song"] + '</div><div class="row guess-author" style="color: ' + (submission["processed"] ? "black" : "red") + ';">' + submission["submitter"] + '</div></div></div>';
           }
+          submissionHtml += '<div class="submission-final-score">Final score: <input type="number" name="score" min="0" value="0" align="center"></div>';
           $('#guesses').append('<div class="user-submission bg-white-transparent mb-3">' + submissionHtml + '</div>');
       }
   });

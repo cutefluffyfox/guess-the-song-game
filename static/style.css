@@ -302,6 +302,16 @@ font-weight: 600;
     text-align: left;
 }
 
+.submission-final-score{
+    display: flex;
+    padding: 0px 15px;
+    border-radius: 10px 0 0 10px;
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
 .guess-song-title{
     margin-right: 10px;
 }
@@ -310,7 +320,7 @@ font-weight: 600;
     margin-right: 10px;
 }
 
-input[type='number']{
+.score-field{
     width: 15%;
     margin-right: 10px;
 }
@@ -327,7 +337,7 @@ input[type='number']{
 }
 
 .button_arrow{
-        font-family: monospace;
+    font-family: monospace;
     font-size: 1.7rem;
     line-height: 0;
     font-weight: 400;
@@ -341,11 +351,46 @@ input[type='number']{
     margin-bottom: 10px;
 }
 
+.submission-guess{
+   gap: 2px;
+   margin-bottom: 5px;
+}
+
+.submission-username{
+    font-size: 25px;
+}
+
 .guess_name, .guess_person{
     background-color: white;
     border-radius: 10px;
     color: black;
     padding: 10px 15px;
+}
+
+.guess-song-title, .guess-author{
+    background-color: white;
+    border-radius: 10px;
+    color: black;
+    padding: 1px 7px;
+}
+
+.submission-texts{
+   padding: 0px 0px 0px 20px;
+   width: 100%;
+   text-align: center;
+   align-content: center;
+}
+
+.guess-song-title{
+    text-align: center;
+    align-content: center;
+    width: 100%;
+}
+
+.guess-author{
+    text-align: center;
+    align-content: center;
+    width: 100%;
 }
 
 .guess_name{

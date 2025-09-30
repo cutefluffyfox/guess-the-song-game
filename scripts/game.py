@@ -24,6 +24,8 @@ class Submission:
 
 
     def set_score(self, score: float):
+        if score is None:
+            score = 0
         self.score = score
         self.score_time = datetime.now()
         self.processed = True
