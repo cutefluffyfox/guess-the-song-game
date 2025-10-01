@@ -6,8 +6,8 @@ from datetime import timedelta
 from flask_socketio import SocketIO, join_room, leave_room, emit
 from flask_session import Session
 
-from scripts.game_rules import DEFAULT_IFRAME_LINK, POSSIBLE_SUBMITTERS, ADMIN_USERNAME, TEXT_TO_EMOTE
-from scripts.permissions import BASE_PERMISSIONS, VIEWER_PERMISSIONS, ADMIN_PERMISSIONS, AUTOMATIC_DRIVEN_PERMISSIONS, PLAYER_PERMISSIONS
+from scripts.game_rules import DEFAULT_IFRAME_LINK, POSSIBLE_SUBMITTERS, ADMIN_USERNAME, TEXT_TO_EMOTE, POSSIBLE_TITLES, POSSIBLE_AUTHORS
+from scripts.permissions import BASE_PERMISSIONS, VIEWER_PERMISSIONS, ADMIN_PERMISSIONS, AUTOMATIC_DRIVEN_PERMISSIONS
 from scripts import game
 
 # load environment variables
@@ -112,6 +112,8 @@ def room():
             possible_submitters=POSSIBLE_SUBMITTERS,
             emotes=emotes,
             permissions=VIEWER_PERMISSIONS,
+            possible_authors=POSSIBLE_AUTHORS,
+            possible_titles=POSSIBLE_TITLES,
         )
     else:
         if session.get('room') is not None:
@@ -121,6 +123,8 @@ def room():
                 possible_submitters=POSSIBLE_SUBMITTERS,
                 emotes=emotes,
                 permissions=VIEWER_PERMISSIONS,
+                possible_authors=POSSIBLE_AUTHORS,
+                possible_titles=POSSIBLE_TITLES,
             )
         else:
             return redirect(url_for('index'))

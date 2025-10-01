@@ -63,7 +63,14 @@
             <p class="font-weight-light">Guess the song title, artist and the song submitter to earn points! You have limited attempts to find the correct answer. Good luck!</p>
 
             <div><p class="mb-0">Song title and Artist (2 points)</p>
-              <input class="w-100 mb-3 input_enter" type="text" id="author-input" placeholder="Enter author & song name " autocomplete="off">
+              <input class="w-100 mb-3 input_enter" type="text" id="author-input" placeholder="Enter author & song name " autocomplete="off" list="songs">
+              <datalist id="songs">
+                {% for author in possible_authors %}
+                  {% for title in possible_titles %}
+                     <option>{{author}} - {{title}}</option>
+                  {% endfor %}
+                {% endfor %}
+              </datalist>
             </div>
             <div>
               <p class="mb-0">Submitter (3 points)</p>
