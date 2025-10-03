@@ -18,11 +18,24 @@ DEFAULT_IFRAME_LINK = 'https://www.openstreetmap.org/export/embed.html?bbox=-0.0
 ADMIN_USERNAME = 'Le Voice'
 
 TEXT_TO_EMOTE = {
-    'smile': 'static/images/smile.webp',
-    'sadcat': 'static/images/SadCat.png',
-    'icon': 'static/images/icon.png',
-    'sus': 'static/images/sus.png',
-    'a': 'static/images/a.gif',
+    ':smile:': 'static/images/smile.webp',
+    ':sadcat:': 'static/images/SadCat.png',
+    ':mpreg:': 'static/images/icon.png',
+    ':sus:': 'static/images/sus.png',
+    ':a:': 'static/images/a.gif',
+    ':gopissgirl:': 'static/images/gopissgirl.webp',
+    ':reallysus:': 'static/images/reallysus.webp',
+    ':life:': 'static/images/life.webp',
+    ':wisdom:': 'static/images/wisdom.webp',
+    ':nowisdom:': 'static/images/nowisdom.webp',
+    ':monksilly:': 'static/images/monksilly.webp',
+    ':well:': 'static/images/well.webp',
+    ':wahuh:': 'static/images/wahuh.webp',
+    ':muimui:': 'static/images/muimui.webp',
+    ':okak:': 'static/images/okak.webp',
+    ':saussage:': 'static/images/saussage.webp',
+    ':o7:': 'static/images/o7.webp',
+    ':nooooo:': 'static/images/nooooo.webp',
 }
 
 USERNAME_COLORS = [
