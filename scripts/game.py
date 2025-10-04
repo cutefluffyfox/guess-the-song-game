@@ -140,21 +140,23 @@ class Game:
         }
         for username in self.get_players(only_online=False):
             user = self.users[username]
-            leaderboard['players'].append({
-                'username': user.username,
-                'points': user.points,
-                'is_online': user.is_online,
-                'can_manage_users' : user.get_permission('can_manage_users'),
-                'can_moderate_chat' : user.get_permission('can_moderate_chat'),
-            })
+            if user.get_permission('is_on_the_leaderboard'):
+                leaderboard['players'].append({
+                    'username': user.username,
+                    'points': user.points,
+                    'is_online': user.is_online,
+                    'can_manage_users' : user.get_permission('can_manage_users'),
+                    'can_moderate_chat' : user.get_permission('can_moderate_chat'),
+                })
         for username in self.get_viewers(only_online=False):
             user = self.users[username]
-            leaderboard['viewers'].append({
-                'username': user.username,
-                'is_online': user.is_online,
-                'can_manage_users': user.get_permission('can_manage_users'),
-                'can_moderate_chat': user.get_permission('can_moderate_chat'),
-            })
+            if user.get_permission('is_on_the_leaderboard'):
+                leaderboard['viewers'].append({
+                    'username': user.username,
+                    'is_online': user.is_online,
+                    'can_manage_users': user.get_permission('can_manage_users'),
+                    'can_moderate_chat': user.get_permission('can_moderate_chat'),
+                })
         leaderboard['players'] = sorted(leaderboard['players'], key=lambda d: d['points'], reverse=True)
         return leaderboard
 

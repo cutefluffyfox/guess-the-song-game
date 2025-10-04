@@ -4,7 +4,7 @@ AUTOMATIC_DRIVEN_PERMISSIONS = {
 
 BASE_PERMISSIONS: dict[str, bool] = {
     'is_online':              False,
-    'is_on_the_leaderboard':  False,
+    'is_on_the_leaderboard':  True,
 
     'can_chat':               True,
     'can_play':               False,
@@ -19,7 +19,7 @@ BASE_PERMISSIONS: dict[str, bool] = {
 
 VIEWER_PERMISSIONS: dict[str, bool] = {
     'is_online':              False,
-    'is_on_the_leaderboard':  False,
+    'is_on_the_leaderboard':  True,
 
     'can_chat':               True,
     'can_play':               False,
