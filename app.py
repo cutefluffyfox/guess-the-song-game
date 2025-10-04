@@ -1,3 +1,4 @@
+import os.path
 from os import environ
 
 import dotenv
@@ -9,6 +10,7 @@ from flask_session import Session
 from scripts.game_rules import DEFAULT_IFRAME_LINK, POSSIBLE_SUBMITTERS, ADMIN_USERNAME, TEXT_TO_EMOTE, POSSIBLE_TITLES, POSSIBLE_AUTHORS
 from scripts.permissions import BASE_PERMISSIONS, VIEWER_PERMISSIONS, ADMIN_PERMISSIONS, AUTOMATIC_DRIVEN_PERMISSIONS
 from scripts import game
+from scripts import memory
 
 # load environment variables
 dotenv.load_dotenv(dotenv.find_dotenv())
@@ -27,25 +29,29 @@ DEBUG = bool(environ.get('DEBUG', 0))
 ADMIN = environ['ADMIN_USERNAME']
 
 # game-related global variables
-GAME = game.Game('main', throw_exceptions=False)
+GAME = memory.load_or_create(try_to_load=True, room_name='main')
 
 Session(app)
 
 
 def publish_leaderboard(to: str):
     emit('score', GAME.get_leaderboard(), to=to)
+    memory.save_game(GAME, bypass_time_constraint=True)
 
 
 def publish_link(to: str):
     emit('stream-change', {'link': GAME.stream_url}, to=to)
+    memory.save_game(GAME, bypass_time_constraint=True)
 
 
 def publish_player_info(username: str):
     emit('user-info', GAME.get_user(username), to=username)
+    memory.save_game(GAME)
 
 
 def publish_clean_chat(messages: list[str], to: str):
     emit('clear-chat', messages, to=to)
+    memory.save_game(GAME)
 
 
 def show_user_permissions(username: str, to: str):
@@ -55,30 +61,39 @@ def show_user_permissions(username: str, to: str):
         if permission not in AUTOMATIC_DRIVEN_PERMISSIONS
     ]
     emit('show-permissions', {'username': username, 'permissions': permissions}, to=to)
+    memory.save_game(GAME)
 
 
 def publish_submission_queue():
     for user in GAME.get_with_permission(permission='can_check_submissions', only_online=True):
         emit('prediction-queue', GAME.get_submissions(), to=user)
+    memory.save_game(GAME)
 
 
 def send_chat_status(username: str, message: str, to: str):
     global GAME
-    msg = GAME.chat.add_message(text=message, username=username, kind='status')
+    msg = GAME.chat.add_message(text=message, username=username, kind='status', can_send=True)
     emit('status', {'msg': GAME.chat.process(msg), 'username': username}, to=to)
+    memory.save_game(GAME)
 
 
 def send_chat_message(username: str, message: str, to: str):
     global GAME
-    msg = GAME.chat.add_message(text=message, username=username, kind='message')
-    if not GAME.user_has_permission(username, permission='can_chat'):
+
+    can_chat = GAME.user_has_permission(username, permission='can_chat')
+    msg = GAME.chat.add_message(text=message, username=username, kind='message', can_send=can_chat)
+
+    if not can_chat:
+        memory.save_game(GAME)
         return
+
     emit('message', {
         'msg': GAME.chat.process(msg),
         'username': ADMIN_USERNAME if username == ADMIN else username,
         'color': GAME.get_user(username)['color'],
         'msg_id': str(msg.id),
     }, to=to)
+    memory.save_game(GAME)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -187,15 +202,16 @@ def chat_action(data):
 
     message_id = int(data['msg_id'])
     message = GAME.chat.find_message(message_id)
-    delete_messages: list[str] = [str(message.id)]
+    delete_messages: list[int] = [message.id]
 
     if data.get('mute', False):
         GAME.mute_user(message.author)
 
     if data.get('all', False):
-        delete_messages.extend([str(msg.id) for msg in GAME.chat.get_last_messages(username=message.author)])
+        delete_messages.extend([msg.id for msg in GAME.chat.get_last_messages(username=message.author)])
 
-    publish_clean_chat(messages=delete_messages, to=room)
+    GAME.chat.set_messages_status(delete_messages, status=f'Deleted by {username}')
+    publish_clean_chat(messages=list(map(str, delete_messages)), to=room)
     publish_player_info(username=message.author)
 
 
@@ -235,6 +251,25 @@ def check_permission(data):
     show_user_permissions(username=user, to=username)
 
 
+@socketio.on('update-leaderboard', namespace='/room')
+def update_leaderboard(data):
+    global GAME
+
+    username = session.get('username')
+
+    if not GAME.user_has_permission(username, permission='can_change_leaderboard'):
+        return
+
+    GAME.update_leaderboard(data)
+    GAME.reset_submissions()
+
+    publish_leaderboard(to=session.get('room'))
+    publish_submission_queue()
+
+    for player in GAME.get_players(only_online=True):
+        publish_player_info(username=player)
+
+
 @socketio.on('set-score', namespace='/room')
 def prediction(data):
     global GAME
@@ -262,12 +297,6 @@ def prediction(message):
             song_info=message.get('author', '<none>'),
             submitter=message.get('submitter', '<none>')
         )
-
-        # TODO: remove it
-        from random import randint
-        # GAME.score_submission(username=username, submission_id=len(GAME.get_user_submissions(username))-1, score=None)
-        # GAME.update_leaderboard({username: 10})
-        publish_leaderboard(to=session.get('room'))
 
         publish_submission_queue()
         publish_player_info(username=username)

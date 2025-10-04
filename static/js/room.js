@@ -1,4 +1,6 @@
 var socket;
+var canChangeLeaderboard = false;
+
 
 $(document).ready(function(){
   socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + '/room');
@@ -87,6 +89,9 @@ $(document).ready(function(){
       // show submit menu
       showSubmitMenu = data["permissions"]["can_play"];
 
+      // check whether can rule the game
+      canChangeLeaderboard = data["permissions"]["can_change_leaderboard"];
+
   });
   socket.on('score', function(data) {
       $('#leaderboard').empty();
@@ -122,7 +127,6 @@ $(document).ready(function(){
   });
   socket.on('prediction-queue', function(data) {
       // data = [{username: str, submissions: [{song: str, submitter: str}]}]
-      console.log(data);
       $('#guesses').empty();
       for (const submissions of data){
           var username = submissions["username"];
@@ -130,10 +134,12 @@ $(document).ready(function(){
           for (const [submissionIdx, submission] of submissions["submissions"].entries()){
               submissionHtml += '<div class="submission-guess"><input type="number" step="any" name="score" min="0" id="submission-' + username + '-' + submissionIdx + '" value="' + (submission["processed"] ? submission["score"] : '') + '"><button onclick=set_score(\"' + username + '\",' + submissionIdx + ')>x</button><div class="submission-texts"><div class="row guess-song-title" style="color: ' + (submission["processed"] ? "black" : "red") + ';">' + submission["song"] + '</div><div class="row guess-author" style="color: ' + (submission["processed"] ? "black" : "red") + ';">' + submission["submitter"] + '</div></div></div>';
           }
-          submissionHtml += '<div class="submission-final-score">Final score: <input type="number" name="score" min="0" value="0" align="center"></div>';
-          $('#guesses').append('<div class="user-submission bg-white-transparent mb-3">' + submissionHtml + '</div>');
+          if (canChangeLeaderboard)
+            submissionHtml += '<div class="submission-final-score">Final score: <input type="number" name="score" min="0" value="" align="center" id="final-score-' + username + '"></div>';
+          $('#guesses').append('<div class="user-submission bg-white-transparent mb-3" data-username="' + username + '">' + submissionHtml + '</div>');
       }
-      $('#guesses').append('<button id="queue-management-button">' + 'Stop accepting submissions' + '</button>');
+      if (canChangeLeaderboard)
+        $('#guesses').append('<button id="queue-management-button" onclick="give_final_score();">' + 'Give final score and end the round' + '</button>');
   });
   socket.on('stream-change', function(data) {
       link = data["link"];
@@ -217,6 +223,25 @@ function delete_message(blockId, allMessages, muteUser) {
 function set_permission(username, permission, value) {
   socket.emit('set-permission', {username: username, permission: permission, value: value});
 };
+
+function give_final_score() {
+  var allSubmissions = document.getElementById('guesses');
+  var finalScores = {};
+  for (const userSubmissions of allSubmissions.childNodes){
+      if (!userSubmissions.hasAttribute("data-username")) continue;
+
+      var username = userSubmissions.getAttribute("data-username");
+      var stringScore = document.getElementById('final-score-' + username).value;
+
+      if (isNaN(parseInt(stringScore))) {
+          alert("No final score for user: " + username);
+          return;
+      }
+      finalScores[username] = parseInt(stringScore);
+  }
+  socket.emit('update-leaderboard', finalScores);
+};
+
 
 function make_user_management_menu(username, data) {
   $('#user-context-menu').empty();

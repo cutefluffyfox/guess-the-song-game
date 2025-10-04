@@ -52,13 +52,15 @@ class Message:
     author: str
     kind: str
     visible: bool
+    status: str = 'uninitialized'
 
-    def __init__(self, text: str, username: str, kind: str = 'message'):
+    def __init__(self, text: str, username: str, kind: str = 'message', can_send: bool = True):
         self.text = text
         self.author = username
         self.kind = kind
         self.time = datetime.now()
-        self.visible = True
+        self.visible = can_send
+        self.status = 'OK' if can_send else 'Attempted to send when muted'
         if self.text is None or self.author is None:
             raise ValueError(f'WHAT: {username} & {text}')
 
@@ -92,8 +94,8 @@ class Chat:
             else:
                 raise NotImplementedError('Non-string keywords are not supported yet')
 
-    def add_message(self, text: str, username: str, kind: str = 'message') -> Message:
-        message = Message(text=text, username=username, kind=kind)
+    def add_message(self, text: str, username: str, kind: str = 'message', can_send: bool = True) -> Message:
+        message = Message(text=text, username=username, kind=kind, can_send=can_send)
         self.messages.append(message)
         return message
 
@@ -119,3 +121,8 @@ class Chat:
             if message.author == username:
                 messages.append(message)
         return messages[::-1]
+
+    def set_messages_status(self, message_ids: list[int], status: str):
+        for idx, message in enumerate(self.messages):
+            if message.id in message_ids:
+                self.messages[idx].status = status

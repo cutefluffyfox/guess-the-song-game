@@ -211,6 +211,7 @@ flask_session/
 
 # Sandbox files
 deleteme/
+saves/
 
 # Pycharm
 .idea/

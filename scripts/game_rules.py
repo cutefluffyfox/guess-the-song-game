@@ -1,4 +1,4 @@
-MAX_SUBMISSION_COUNT = 5
+MAX_SUBMISSION_COUNT = 3
 
 POSSIBLE_SUBMITTERS = sorted([
     'CuteFluffyFox', 'yeouryl', 'Voice', 'Coconought', 'Potato', 'Ehtomit', 'Komider', 'Wizzet', 'SkyfallStar', 'Laya', 'Thires', 'AryaHimself', 'CocoBeansies', 'Dweamy'
@@ -60,3 +60,7 @@ USERNAME_COLORS = [
     '#ffd8b1',  # apricot
     '#000075',  # navy blue
 ]
+
+SAVES_PATH = 'saves'
+MAXIMUM_SAVES_AMOUNT = 10
+SAVE_IDLE_INTERVAL_SECONDS = 10
