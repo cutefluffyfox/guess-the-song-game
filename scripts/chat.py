@@ -103,7 +103,7 @@ class Chat:
         self.messages.append(message)
         return message
 
-    def process(self, message: Message or str, safe: bool = False) -> str:
+    def process(self, message: Message or str, safe: bool = True) -> str:
         message = str(message)
         if safe:
             message = message.replace('<', '&lt;').replace('>', '&gt;')
