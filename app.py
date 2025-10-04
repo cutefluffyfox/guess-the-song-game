@@ -367,7 +367,7 @@ def join(*args):
     else:
         GAME.add_user(username=username, permissions=VIEWER_PERMISSIONS.copy(), points=0)
 
-    send_chat_status(message=f'welcome in game {ADMIN_USERNAME if GAME.is_admin(username) else username}', username=username, to=room)
+    send_chat_status(message=f'welcome in game {ADMIN_USERNAME if username == ADMIN else username}', username=username, to=room)
     publish_player_info(username=username)
     publish_leaderboard(to=room)
     publish_link(to=room)  # ideally send to username only, but this helps sync all users just in case
@@ -392,7 +392,7 @@ def left(*args):
     GAME.remove_user(username=username)
 
     session.clear()
-    send_chat_status(message=f'{ADMIN_USERNAME if GAME.is_admin(username) else username} has left the game', username=username, to=room)
+    send_chat_status(message=f'{ADMIN_USERNAME if username == ADMIN else username} has left the game', username=username, to=room)
     publish_leaderboard(to=room)
     publish_link(to=room)
 

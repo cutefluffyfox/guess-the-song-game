@@ -14,7 +14,6 @@ $(document).ready(function(){
       var shouldScroll = Math.ceil(10 + $('#chat')[0].scrollTop + $('#chat')[0].clientHeight) >= $('#chat')[0].scrollHeight;
       $('#chat').append('<div class="chat-message">' + '&lt;' + data.msg + '&gt;' + '</div>');
       if (shouldScroll) {
-          console.log("it should scroll");
           $('#chat').scrollTop($('#chat')[0].scrollHeight);
       }
   });
@@ -96,7 +95,6 @@ $(document).ready(function(){
   socket.on('score', function(data) {
       $('#leaderboard').empty();
       for (const user of data["players"]) {
-         console.log(user);
          var color = (user["is_online"]) ? "white" : "grey";
          var badges = "";
          if (user["can_manage_users"]) badges += '<img alt src="https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/1">';
@@ -105,7 +103,6 @@ $(document).ready(function(){
       }
       $('#viewers').empty();
       for (const user of data["viewers"]) {
-         console.log(user);
          var color = (user["is_online"]) ? "white" : "grey";
          var badges = "";
          if (user["can_manage_users"]) badges += '<img alt src="https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/1">';
@@ -122,8 +119,6 @@ $(document).ready(function(){
       result_val = data["result"];
       if (result_type == "submitter") $('#submitter-score').html(result_val);
       if (result_type == "author") $('#author-score').html(result_val);
-
-      console.log(data);
   });
   socket.on('prediction-queue', function(data) {
       // data = [{username: str, submissions: [{song: str, submitter: str}]}]
@@ -252,8 +247,6 @@ function make_user_management_menu(username, data) {
 
 function set_score(username, submissionIdx) {
   var score = document.getElementById("submission-" + username + '-' + submissionIdx).valueAsNumber;
-  console.log("submission-" + username + '-' + submissionIdx);
-  console.log(score);
   socket.emit('set-score', {username: username, submission: submissionIdx, score: score});
 };
 
