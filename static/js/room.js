@@ -259,4 +259,5 @@ function set_score(username, submissionIdx) {
 
 function add_emote(text){
   $('#text').val($('#text').val() + text);
+  document.getElementById("text").focus();
 };
