@@ -84,7 +84,10 @@ class Chat:
 
     def __init__(self):
         self.messages = list()
+        self.reinitialize_processor()
 
+
+    def reinitialize_processor(self):
         # initialize processors from TEXT_TO_EMOTE variable
         self.processors = []
         for keyword, link in sorted(TEXT_TO_EMOTE.items(), key=len, reverse=True):
@@ -93,6 +96,7 @@ class Chat:
                 self.processors.append(CharacterReplaceProcessor(keyword=keyword, link=html))
             else:
                 raise NotImplementedError('Non-string keywords are not supported yet')
+
 
     def add_message(self, text: str, username: str, kind: str = 'message', can_send: bool = True) -> Message:
         message = Message(text=text, username=username, kind=kind, can_send=can_send)

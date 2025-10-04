@@ -308,3 +308,8 @@ class Game:
             return {}
         return self.users[username].get_permissions()
 
+    def disconnect_all_users(self):
+        for username in self.users:
+            self.users[username].change_permissions(permissions={'is_online': False})
+
+

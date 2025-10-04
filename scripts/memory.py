@@ -25,6 +25,9 @@ def load_or_create(try_to_load: bool = True, room_name: str = 'main') -> Game:
 
     with open(get_latest_file(SAVES_PATH), 'rb') as save:
         game: Game = pickle.load(save)
+    game.disconnect_all_users()
+    game.chat.reinitialize_processor()
+
     return game
 
 

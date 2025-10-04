@@ -1,4 +1,4 @@
-MAX_SUBMISSION_COUNT = 3
+MAX_SUBMISSION_COUNT = 5
 
 POSSIBLE_SUBMITTERS = sorted([
     'CuteFluffyFox', 'yeouryl', 'Voice', 'Coconought', 'Potato', 'Ehtomit', 'Komider', 'Wizzet', 'SkyfallStar', 'Laya', 'Thires', 'AryaHimself', 'CocoBeansies', 'Dweamy'
@@ -22,7 +22,7 @@ TEXT_TO_EMOTE = {
     ':sadcat:': 'static/images/SadCat.png',
     ':mpreg:': 'static/images/icon.png',
     ':sus:': 'static/images/sus.png',
-    ':a:': 'static/images/a.gif',
+    ':enrichment:': 'static/images/a.gif',
     ':gopissgirl:': 'static/images/gopissgirl.webp',
     ':reallysus:': 'static/images/reallysus.webp',
     ':life:': 'static/images/life.webp',

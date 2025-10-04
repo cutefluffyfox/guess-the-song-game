@@ -1,4 +1,4 @@
-import os.path
+import logging
 from os import environ
 
 import dotenv
@@ -9,12 +9,21 @@ from flask_session import Session
 
 from scripts.game_rules import DEFAULT_IFRAME_LINK, POSSIBLE_SUBMITTERS, ADMIN_USERNAME, TEXT_TO_EMOTE, POSSIBLE_TITLES, POSSIBLE_AUTHORS
 from scripts.permissions import BASE_PERMISSIONS, VIEWER_PERMISSIONS, ADMIN_PERMISSIONS, AUTOMATIC_DRIVEN_PERMISSIONS
-from scripts import game
 from scripts import memory
 
 # load environment variables
 dotenv.load_dotenv(dotenv.find_dotenv())
 
+DEBUG = bool(environ.get('DEBUG', 0))
+ADMIN = environ['ADMIN_USERNAME']
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    filename='logs.log',
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    level=logging.DEBUG if DEBUG else logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 app = Flask(__name__)
 
@@ -25,9 +34,6 @@ app.config['SECRET_KEY'] = environ['FLASK_SECRET_KEY']
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=3)
 
-DEBUG = bool(environ.get('DEBUG', 0))
-ADMIN = environ['ADMIN_USERNAME']
-
 # game-related global variables
 GAME = memory.load_or_create(try_to_load=True, room_name='main')
 
@@ -35,26 +41,31 @@ Session(app)
 
 
 def publish_leaderboard(to: str):
+    logger.info(f'publish-leaderboard -> {to}')
     emit('score', GAME.get_leaderboard(), to=to)
     memory.save_game(GAME, bypass_time_constraint=True)
 
 
 def publish_link(to: str):
+    logger.info(f'stream-change -> {GAME.stream_url}')
     emit('stream-change', {'link': GAME.stream_url}, to=to)
     memory.save_game(GAME, bypass_time_constraint=True)
 
 
 def publish_player_info(username: str):
+    logger.info(f'stream-change -> {GAME.stream_url}')
     emit('user-info', GAME.get_user(username), to=username)
     memory.save_game(GAME)
 
 
 def publish_clean_chat(messages: list[str], to: str):
+    logger.info(f'SOCKET clear-chat -> {messages}')
     emit('clear-chat', messages, to=to)
     memory.save_game(GAME)
 
 
 def show_user_permissions(username: str, to: str):
+    logger.info(f'SOCKET show-user-permissions -> {username}')
     permissions = [
         {'name': permission, 'value': val}
         for permission, val in GAME.get_user_permissions(username).items()
@@ -65,6 +76,7 @@ def show_user_permissions(username: str, to: str):
 
 
 def publish_submission_queue():
+    logger.info(f'SOCKET publish-submission-queue')
     for user in GAME.get_with_permission(permission='can_check_submissions', only_online=True):
         emit('prediction-queue', GAME.get_submissions(), to=user)
     memory.save_game(GAME)
@@ -72,6 +84,7 @@ def publish_submission_queue():
 
 def send_chat_status(username: str, message: str, to: str):
     global GAME
+    logger.info(f'SOCKET send-chat-status -> {to} | {username} | {message}')
     msg = GAME.chat.add_message(text=message, username=username, kind='status', can_send=True)
     emit('status', {'msg': GAME.chat.process(msg), 'username': username}, to=to)
     memory.save_game(GAME)
@@ -82,8 +95,10 @@ def send_chat_message(username: str, message: str, to: str):
 
     can_chat = GAME.user_has_permission(username, permission='can_chat')
     msg = GAME.chat.add_message(text=message, username=username, kind='message', can_send=can_chat)
+    logger.info(f'SOCKET send-chat-message -> {to} | {username} | {message}')
 
     if not can_chat:
+        logger.info(f'SOCKET send-chat-message -> FAILED {username} do not have chat permissions')
         memory.save_game(GAME)
         return
 
@@ -99,6 +114,7 @@ def send_chat_message(username: str, message: str, to: str):
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def index():
+    logger.info(f'REQUESTS main page join')
     return render_template('homepage.html')
 
 
@@ -106,21 +122,25 @@ def index():
 def room():
     global GAME
 
+    logger.info(f'REQUESTS room join')
     emotes = [{'keyword': key, 'link': link} for key, link in TEXT_TO_EMOTE.items()]
 
     if request.method == 'POST':
         username = request.form['username']
 
         if set(username) - set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_- '):
+            logger.info(f'API unsuccessful username attempt')
             return render_template('homepage.html', message='Invalid username symbols: accepted one [a-zA-Z0-9_- ]')
 
         if not GAME.user_can_join(username):
+            logger.info(f'API user already exists')
             return render_template('homepage.html', message='User with such username already in the game')
 
         # Store the data in session
         session['username'] = username
         session['room'] = GAME.room_name
 
+        logger.info(f'API New session created')
         return render_template(
             './room.html',
             session=session,
@@ -132,6 +152,7 @@ def room():
         )
     else:
         if session.get('room') is not None:
+            logger.info(f'API old session loaded')
             return render_template(
                 './room.html',
                 session=session,
@@ -149,6 +170,7 @@ def room():
 def text(message):
     room = session.get('room')
     username = session.get('username')
+    logger.info(f'API text `{username}` -> `{message}`')
     send_chat_message(message=message['msg'], username=username, to=room)
 
 
@@ -158,8 +180,11 @@ def leaderboard_change(message):
 
     room = session.get('room')
     username = session.get('username')
-    if username != ADMIN:
+    if not GAME.user_has_permission(username, permission='can_change_leaderboard'):
+        logger.info(f'API failed attempt to change-leaderboard from user with no permission `{username}` | {GAME.get_user_permissions(username)} | {message}')
         return
+    logger.info(f'API leaderboard-change `{username}` -> `{message}`')
+
     try:
         template_leaderboard = eval(message['data'])
         if isinstance(template_leaderboard, dict):
@@ -177,7 +202,9 @@ def stream_change(message):
     username = session.get('username')
 
     if not GAME.user_has_permission(username, permission='can_change_stream'):
+        logger.info(f'API failed attempt to change-stream from user with no permission `{username}` | {GAME.get_user_permissions(username)} | {message}')
         return
+    logger.info(f'API stream-change `{username}` -> `{message}`')
 
     link = message['link'].strip()
     if link == 'default':
@@ -195,10 +222,14 @@ def chat_action(data):
     username = session.get('username')
 
     if not GAME.user_has_permission(username, permission='can_moderate_chat'):
+        logger.info(f'API failed attempt to chat-action from user with no permission `{username}` | {GAME.get_user_permissions(username)} | {data}')
         return
 
     if not data['msg_id'].lstrip('-').isdigit():
+        logger.info(f'API failed to parse non-int message-id `{data}`')
         return
+
+    logger.info(f'API chat-action `{username}` -> `{data}`')
 
     message_id = int(data['msg_id'])
     message = GAME.chat.find_message(message_id)
@@ -206,9 +237,11 @@ def chat_action(data):
 
     if data.get('mute', False):
         GAME.mute_user(message.author)
+        logger.info(f'API muting user `{message.author}`')
 
     if data.get('all', False):
         delete_messages.extend([msg.id for msg in GAME.chat.get_last_messages(username=message.author)])
+        logger.info(f'API deleting last messages from `{message.author}`')
 
     GAME.chat.set_messages_status(delete_messages, status=f'Deleted by {username}')
     publish_clean_chat(messages=list(map(str, delete_messages)), to=room)
@@ -222,6 +255,7 @@ def set_permission(data):
     username = session.get('username')
 
     if not GAME.user_has_permission(username, permission='can_manage_users'):
+        logger.info(f'API failed attempt to set-permission from user with no permission `{username}` | {GAME.get_user_permissions(username)} | {data}')
         return
 
     user = data['username']
@@ -229,8 +263,9 @@ def set_permission(data):
     value = data['value']
 
     if permission not in BASE_PERMISSIONS:
-        print('unknown permission:', permission)
+        logger.info(f'API failed to set permission, unknown permission `{permission}')
         return
+    logger.info(f'API set-permission `{username}` -> `{data}`')
 
     GAME.change_permissions(username=user, permissions={permission: value})
     publish_player_info(username=user)
@@ -245,7 +280,9 @@ def check_permission(data):
     username = session.get('username')
 
     if not GAME.user_has_permission(username, permission='can_manage_users'):
+        logger.info(f'API failed attempt to check-permission from user with no permission `{username}` | {GAME.get_user_permissions(username)} | {data}')
         return
+    logger.info(f'API check-permission `{username}` -> `{data}`')
 
     user = data['username']
     show_user_permissions(username=user, to=username)
@@ -258,7 +295,9 @@ def update_leaderboard(data):
     username = session.get('username')
 
     if not GAME.user_has_permission(username, permission='can_change_leaderboard'):
+        logger.info(f'API failed attempt to update-leaderboard from user with no permission `{username}` | {GAME.get_user_permissions(username)} | {data}')
         return
+    logger.info(f'API update-leaderboard `{username}` -> `{data}`')
 
     GAME.update_leaderboard(data)
     GAME.reset_submissions()
@@ -277,7 +316,9 @@ def prediction(data):
     username = session.get('username')
 
     if not GAME.user_has_permission(username, permission='can_check_submissions'):
+        logger.info(f'API failed attempt to set-score from user with no permission `{username}` | {GAME.get_user_permissions(username)} | {data}')
         return
+    logger.info(f'API set-score `{username}` -> `{data}`')
 
     GAME.score_submission(username=data['username'], submission_id=data['submission'], score=data['score'])
     publish_submission_queue()
@@ -291,15 +332,19 @@ def prediction(message):
 
     username = session.get('username')
 
-    if GAME.is_player(username):
-        GAME.add_submission(
-            username=username,
-            song_info=message.get('author', '<none>'),
-            submitter=message.get('submitter', '<none>')
-        )
+    if not GAME.is_player(username):
+        logger.info(f'API failed attempt to add-prediction from user with no permission `{username}` | {GAME.get_user_permissions(username)} | {message}')
+        return
+    logger.info(f'API new prediction `{username}` -> `{message}`')
 
-        publish_submission_queue()
-        publish_player_info(username=username)
+    GAME.add_submission(
+        username=username,
+        song_info=message.get('author', '<none>'),
+        submitter=message.get('submitter', '<none>')
+    )
+
+    publish_submission_queue()
+    publish_player_info(username=username)
 
 
 @socketio.on('join', namespace='/room')
@@ -312,6 +357,7 @@ def join(*args):
     if username is None:
         emit('redirect', {})
         return
+    logger.info(f'API user join `{username}`')
 
     join_room(room)
     join_room(username)
@@ -321,21 +367,10 @@ def join(*args):
     else:
         GAME.add_user(username=username, permissions=VIEWER_PERMISSIONS.copy(), points=0)
 
-    if username == 'cutefluffyfox':
-        GAME.change_permissions(
-            username=username,
-            permissions={
-                'can_moderate_chat': True,
-                'can_manage_users': True,
-                'can_change_stream': True,
-                'can_play': True,
-                'can_check_submissions': True
-            })
-
     send_chat_status(message=f'welcome in game {ADMIN_USERNAME if GAME.is_admin(username) else username}', username=username, to=room)
     publish_player_info(username=username)
     publish_leaderboard(to=room)
-    publish_link(to=room)  # ideally send to username only, but this helps sync all users
+    publish_link(to=room)  # ideally send to username only, but this helps sync all users just in case
     publish_submission_queue()
 
 
@@ -348,7 +383,9 @@ def left(*args):
     username = session.get('username')
 
     if username is None:
+        logger.info(f'API null user left (normal after restarts)')
         return
+    logger.info(f'API user left `{username}`')
 
     leave_room(room)
     leave_room(username)
@@ -361,6 +398,7 @@ def left(*args):
 
 
 if __name__ == '__main__':
+    logger.info(f'Starting application')
     socketio.run(
         app,
         debug=bool(environ.get('DEBUG', False)),
