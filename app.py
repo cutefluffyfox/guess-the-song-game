@@ -128,7 +128,7 @@ def room():
     if request.method == 'POST':
         username = request.form['username']
 
-        if set(username) - set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_- '):
+        if set(username) - set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-'):
             logger.info(f'API unsuccessful username attempt')
             return render_template('homepage.html', message='Invalid username symbols: accepted one [a-zA-Z0-9_- ]')
 
