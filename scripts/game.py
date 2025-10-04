@@ -214,7 +214,7 @@ class Game:
 
     def remove_user(self, username: str):
         if self.users.get(username):
-            self.users[username].change_permissions(permissions={'is_online': False})
+            self.users[username].change_permissions(permissions={'is_online': False, 'can_play': False})
 
     def update_leaderboard(self, modification: dict[str, int], mode: str = 'add'):
         assert mode in {'add', 'set'}, 'Invalid mode type'
@@ -313,5 +313,10 @@ class Game:
     def disconnect_all_users(self):
         for username in self.users:
             self.users[username].change_permissions(permissions={'is_online': False})
+
+    def set_new_round_permissions(self):
+        for username in self.users:
+            if self.users[username].get_permission('can_check_submissions') and not self.users[username].get_permission('can_manage_users'):
+                self.users[username].change_permissions(permissions={'can_check_submissions': False})
 
 

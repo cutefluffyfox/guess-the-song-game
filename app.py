@@ -301,6 +301,7 @@ def update_leaderboard(data):
 
     GAME.update_leaderboard(data)
     GAME.reset_submissions()
+    GAME.set_new_round_permissions()
 
     publish_leaderboard(to=session.get('room'))
     publish_submission_queue()
