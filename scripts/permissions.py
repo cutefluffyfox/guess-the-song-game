@@ -13,7 +13,6 @@ BASE_PERMISSIONS: dict[str, bool] = {
     'can_check_submissions':  False,
     'can_change_leaderboard': False,
     'can_manage_users':       False,
-    'can_stop_round':         False,
 }
 
 
@@ -28,7 +27,6 @@ VIEWER_PERMISSIONS: dict[str, bool] = {
     'can_check_submissions':  False,
     'can_change_leaderboard': False,
     'can_manage_users':       False,
-    'can_stop_round':         False,
 }
 
 
@@ -43,7 +41,6 @@ PLAYER_PERMISSIONS: dict[str, bool] = {
     'can_check_submissions':  False,
     'can_change_leaderboard': False,
     'can_manage_users':       False,
-    'can_stop_round':         False,
 }
 
 
@@ -58,7 +55,6 @@ ADMIN_PERMISSIONS: dict[str, bool] = {
     'can_check_submissions':  True,
     'can_change_leaderboard': True,
     'can_manage_users':       True,
-    'can_stop_round':         True,
 }
 
 

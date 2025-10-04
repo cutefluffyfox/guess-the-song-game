@@ -256,3 +256,7 @@ function set_score(username, submissionIdx) {
   console.log(score);
   socket.emit('set-score', {username: username, submission: submissionIdx, score: score});
 };
+
+function add_emote(text){
+  $('#text').val($('#text').val() + text);
+};

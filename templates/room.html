@@ -142,7 +142,7 @@
       </div>
       <div class="container-grid bg-white-transparent" id="emotes-panel">
           {% for emote in emotes %}
-            <button><img class="emo-ticon" src="{{ emote['link'] }}" title="{{ emote['keyword'] }}"></button>
+            <button><img class="emo-ticon" src="{{ emote['link'] }}" title="{{ emote['keyword'] }}" onclick="add_emote('{{ emote['keyword'] }}');"></button>
           {% endfor %}
       </div>
       <div id="submissions-menu">
