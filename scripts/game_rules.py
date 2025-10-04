@@ -5,11 +5,11 @@ POSSIBLE_SUBMITTERS = sorted([
 ])
 
 POSSIBLE_AUTHORS = sorted([
-    'Joost Klein', 'Imagine dragons', 'Lemon demon',
+    'Glass Moon Dance', 'Talking to myself', 'Do I Impress you', 'My Sacrifice', 'Jump', 'Blurt', 'I wanna be free', 'Try everything', 'God', 'Soldier of Heaven', 'Nevermore', 'Breeze', 'Ignorance', 'Wheatus', 'If I were to die'
 ])
 
 POSSIBLE_TITLES = sorted([
-    'Europapa', 'Radioactive', 'A lifetime award'
+    'Teenage Dirtbag', 'Clara Thomas', 'Pattern ft Shannon & Rieman', 'Mega Mango', 'YonKaGor', 'Blackpink', 'Panic ! At the disco', 'Paramore', 'Creed', 'Sabaton', 'Jake Daniels', 'Nelward', 'The Vanished People', 'Sasuke UK', 'Shakira'
 ])
 
 # DEFAULT_IFRAME_LINK = 'https://sketchfab.com/models/befbb2c422fc4b92aecae8c5114967e9/embed?autostart=1&internal=1&tracking=0&ui_infos=0&ui_snapshots=1&ui_stop=0&ui_watermark=0'
