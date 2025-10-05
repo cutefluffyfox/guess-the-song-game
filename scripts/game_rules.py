@@ -40,23 +40,23 @@ TEXT_TO_EMOTE = {
 
 USERNAME_COLORS = [
     # colors taken from website: https://sashamaps.net/docs/resources/20-colors/
-    '#e6194B',  # red
+    # '#e6194B',  # red (difficult to read)
     '#3cb44b',  # green
     '#ffe119',  # yellow
-    '#4363d8',  # blue
+    # '#4363d8',  # blue (difficult to read)
     '#f58231',  # orange
     '#911eb4',  # purple
     '#42d4f4',  # cyan
-    '#f032e6',  # magenta
+    # '#f032e6',  # magenta (difficult to read)
     '#bfef45',  # lime
     '#fabed4',  # pink
-    '#469990',  # teal
+    # '#469990',  # teal  (difficult to read)
     '#dcbeff',  # lavender
-    '#9A6324',  # brown
+    # '#9A6324',  # brown  (difficult to read)
     '#fffac8',  # beige
     '#800000',  # maroon
     '#aaffc3',  # mint
-    '#808000',  # olive
+    # '#808000',  # olive (difficult to read)
     '#ffd8b1',  # apricot
     '#000075',  # navy blue
 ]
