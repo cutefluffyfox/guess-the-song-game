@@ -8,7 +8,7 @@ from flask_socketio import SocketIO, join_room, leave_room, emit
 from flask_session import Session
 
 from scripts.game_rules import DEFAULT_IFRAME_LINK, POSSIBLE_SUBMITTERS, ADMIN_USERNAME, TEXT_TO_EMOTE, POSSIBLE_TITLES, POSSIBLE_AUTHORS
-from scripts.permissions import BASE_PERMISSIONS, VIEWER_PERMISSIONS, ADMIN_PERMISSIONS, AUTOMATIC_DRIVEN_PERMISSIONS
+from scripts.permissions import BASE_PERMISSIONS, VIEWER_PERMISSIONS, ADMIN_PERMISSIONS, AUTOMATIC_DRIVEN_PERMISSIONS, CHAT_MOD_CHANGE_PERMISSIONS
 from scripts import memory
 
 # load environment variables
@@ -64,13 +64,21 @@ def publish_clean_chat(messages: list[str], to: str):
     memory.save_game(GAME)
 
 
-def show_user_permissions(username: str, to: str):
+def show_user_permissions(username: str, to: str, request_username: str):
     logger.info(f'SOCKET show-user-permissions -> {username}')
     permissions = [
         {'name': permission, 'value': val}
         for permission, val in GAME.get_user_permissions(username).items()
         if permission not in AUTOMATIC_DRIVEN_PERMISSIONS
     ]
+
+    if GAME.user_has_permission(username=request_username, permission='can_manage_users'):
+        pass
+    elif GAME.user_has_permission(username=request_username, permission='can_moderate_chat'):
+        permissions = list(filter(lambda perm: perm['name'] in CHAT_MOD_CHANGE_PERMISSIONS, permissions))
+    else:
+        permissions = []
+
     emit('show-permissions', {'username': username, 'permissions': permissions}, to=to)
     memory.save_game(GAME)
 
@@ -98,7 +106,7 @@ def send_chat_message(username: str, message: str, to: str):
     logger.info(f'SOCKET send-chat-message -> {to} | {username} | {message}')
 
     if not can_chat:
-        logger.info(f'SOCKET send-chat-message -> FAILED {username} do not have chat permissions')
+        logger.error(f'SOCKET send-chat-message -> FAILED {username} do not have chat permissions')
         memory.save_game(GAME)
         return
 
@@ -129,11 +137,11 @@ def room():
         username = request.form['username']
 
         if set(username) - set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-'):
-            logger.info(f'API unsuccessful username attempt')
+            logger.error(f'API unsuccessful username attempt `{username}`')
             return render_template('homepage.html', message='Invalid username symbols: accepted one [a-zA-Z0-9_- ]')
 
         if not GAME.user_can_join(username):
-            logger.info(f'API user already exists')
+            logger.error(f'API user already exists: `{username}`')
             return render_template('homepage.html', message='User with such username already in the game')
 
         # Store the data in session
@@ -181,7 +189,7 @@ def leaderboard_change(message):
     room = session.get('room')
     username = session.get('username')
     if not GAME.user_has_permission(username, permission='can_change_leaderboard'):
-        logger.info(f'API failed attempt to change-leaderboard from user with no permission `{username}` | {GAME.get_user_permissions(username)} | {message}')
+        logger.error(f'API failed attempt to change-leaderboard from user with no permission `{username}` | {GAME.get_user_permissions(username)} | {message}')
         return
     logger.info(f'API leaderboard-change `{username}` -> `{message}`')
 
@@ -202,7 +210,7 @@ def stream_change(message):
     username = session.get('username')
 
     if not GAME.user_has_permission(username, permission='can_change_stream'):
-        logger.info(f'API failed attempt to change-stream from user with no permission `{username}` | {GAME.get_user_permissions(username)} | {message}')
+        logger.error(f'API failed attempt to change-stream from user with no permission `{username}` | {GAME.get_user_permissions(username)} | {message}')
         return
     logger.info(f'API stream-change `{username}` -> `{message}`')
 
@@ -222,11 +230,11 @@ def chat_action(data):
     username = session.get('username')
 
     if not GAME.user_has_permission(username, permission='can_moderate_chat'):
-        logger.info(f'API failed attempt to chat-action from user with no permission `{username}` | {GAME.get_user_permissions(username)} | {data}')
+        logger.error(f'API failed attempt to chat-action from user with no permission `{username}` | {GAME.get_user_permissions(username)} | {data}')
         return
 
     if not data['msg_id'].lstrip('-').isdigit():
-        logger.info(f'API failed to parse non-int message-id `{data}`')
+        logger.error(f'API failed to parse non-int message-id `{data}`')
         return
 
     logger.info(f'API chat-action `{username}` -> `{data}`')
@@ -254,8 +262,8 @@ def set_permission(data):
 
     username = session.get('username')
 
-    if not GAME.user_has_permission(username, permission='can_manage_users'):
-        logger.info(f'API failed attempt to set-permission from user with no permission `{username}` | {GAME.get_user_permissions(username)} | {data}')
+    if not GAME.user_has_permission(username, permission='can_manage_users') and not GAME.user_has_permission(username, permission='can_moderate_chat') :
+        logger.error(f'API failed attempt to set-permission from user with no permission `{username}` | {GAME.get_user_permissions(username)} | {data}')
         return
 
     user = data['username']
@@ -263,8 +271,13 @@ def set_permission(data):
     value = data['value']
 
     if permission not in BASE_PERMISSIONS:
-        logger.info(f'API failed to set permission, unknown permission `{permission}')
+        logger.error(f'API failed to set permission, unknown permission `{permission}')
         return
+
+    if not GAME.user_has_permission(username, permission='can_manage_users') and GAME.user_has_permission(username, permission='can_moderate_chat') and permission not in CHAT_MOD_CHANGE_PERMISSIONS:
+        logger.error(f'API failed to set permission, chatmods cant set permission `{permission}`')
+        return
+
     logger.info(f'API set-permission `{username}` -> `{data}`')
 
     GAME.change_permissions(username=user, permissions={permission: value})
@@ -279,13 +292,13 @@ def check_permission(data):
 
     username = session.get('username')
 
-    if not GAME.user_has_permission(username, permission='can_manage_users'):
-        logger.info(f'API failed attempt to check-permission from user with no permission `{username}` | {GAME.get_user_permissions(username)} | {data}')
+    if not GAME.user_has_permission(username, permission='can_manage_users') and not GAME.user_has_permission(username, permission='can_moderate_chat'):
+        logger.error(f'API failed attempt to check-permission from user with no permission `{username}` | {GAME.get_user_permissions(username)} | {data}')
         return
     logger.info(f'API check-permission `{username}` -> `{data}`')
 
     user = data['username']
-    show_user_permissions(username=user, to=username)
+    show_user_permissions(username=user, to=username, request_username=username)
 
 
 @socketio.on('update-leaderboard', namespace='/room')
@@ -295,7 +308,7 @@ def update_leaderboard(data):
     username = session.get('username')
 
     if not GAME.user_has_permission(username, permission='can_change_leaderboard'):
-        logger.info(f'API failed attempt to update-leaderboard from user with no permission `{username}` | {GAME.get_user_permissions(username)} | {data}')
+        logger.error(f'API failed attempt to update-leaderboard from user with no permission `{username}` | {GAME.get_user_permissions(username)} | {data}')
         return
     logger.info(f'API update-leaderboard `{username}` -> `{data}`')
 
@@ -317,7 +330,7 @@ def prediction(data):
     username = session.get('username')
 
     if not GAME.user_has_permission(username, permission='can_check_submissions'):
-        logger.info(f'API failed attempt to set-score from user with no permission `{username}` | {GAME.get_user_permissions(username)} | {data}')
+        logger.error(f'API failed attempt to set-score from user with no permission `{username}` | {GAME.get_user_permissions(username)} | {data}')
         return
     logger.info(f'API set-score `{username}` -> `{data}`')
 
@@ -334,7 +347,7 @@ def prediction(message):
     username = session.get('username')
 
     if not GAME.is_player(username):
-        logger.info(f'API failed attempt to add-prediction from user with no permission `{username}` | {GAME.get_user_permissions(username)} | {message}')
+        logger.error(f'API failed attempt to add-prediction from user with no permission `{username}` | {GAME.get_user_permissions(username)} | {message}')
         return
     logger.info(f'API new prediction `{username}` -> `{message}`')
 

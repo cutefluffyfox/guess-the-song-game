@@ -147,6 +147,7 @@ class Game:
                     'is_online': user.is_online,
                     'can_manage_users' : user.get_permission('can_manage_users'),
                     'can_moderate_chat' : user.get_permission('can_moderate_chat'),
+                    'can_chat' : user.get_permission('can_chat'),
                 })
         for username in self.get_viewers(only_online=False):
             user = self.users[username]
@@ -156,6 +157,7 @@ class Game:
                     'is_online': user.is_online,
                     'can_manage_users': user.get_permission('can_manage_users'),
                     'can_moderate_chat': user.get_permission('can_moderate_chat'),
+                    'can_chat': user.get_permission('can_chat'),
                 })
         leaderboard['players'] = sorted(leaderboard['players'], key=lambda d: d['points'], reverse=True)
         return leaderboard

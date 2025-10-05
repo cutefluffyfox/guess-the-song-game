@@ -99,6 +99,7 @@ $(document).ready(function(){
          var badges = "";
          if (user["can_manage_users"]) badges += '<img alt src="https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/1">';
          if (user["can_moderate_chat"]) badges += '<img alt src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1">';
+         if (!user["can_chat"]) badges += '<img alt src="static/images/chat-mute-custom.PNG" height=20px>';
          $('#leaderboard').append('<div class="person_div"><div class="person_name"><span class="username" style="color: ' + color + ';">' + user["username"] + '</span>' + badges + '</div><div class="person_score">' + user["points"] + '</div></div>');
       }
       $('#viewers').empty();
@@ -107,6 +108,7 @@ $(document).ready(function(){
          var badges = "";
          if (user["can_manage_users"]) badges += '<img alt src="https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/1">';
          if (user["can_moderate_chat"]) badges += '<img alt src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1">';
+         if (!user["can_chat"]) badges += '<img alt src="static/images/chat-mute-custom.PNG" height=20px>';
          $('#viewers').append('<div class="person_div"><div class="person_name"><span class="username" style="color: ' + color + ';">' + user["username"] + '</span>' + badges + '</div></div>');
       }
       document.getElementById("viewers").style.display = data["viewers"].length == 0 ? 'none' : 'block';

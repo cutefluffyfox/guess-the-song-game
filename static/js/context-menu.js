@@ -28,7 +28,7 @@ document.oncontextmenu = function(e) {
     document.getElementById('chat-delete-all').onclick = function() { delete_message(blockId, true, false); }
     document.getElementById('chat-mute-user').onclick = function() { delete_message(blockId, true, true); }
   }
-  else if (showUserModeration && element.className.startsWith("username")) {
+  else if (showUserModeration && element.className.startsWith("username") || showChatModeration && element.className.startsWith("username")) {
     var userContextMenu = document.getElementById("user-context-menu");
 
     var username = element.innerHTML;

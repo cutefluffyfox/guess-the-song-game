@@ -2,6 +2,10 @@ AUTOMATIC_DRIVEN_PERMISSIONS = {
     'is_online', 'is_on_the_leaderboard',
 }
 
+CHAT_MOD_CHANGE_PERMISSIONS = {
+    'can_chat'
+}
+
 BASE_PERMISSIONS: dict[str, bool] = {
     'is_online':              False,
     'is_on_the_leaderboard':  True,
