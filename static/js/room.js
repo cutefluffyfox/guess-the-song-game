@@ -253,6 +253,8 @@ function set_score(username, submissionIdx) {
 };
 
 function add_emote(text){
+  var chatTextArea = document.getElementById("text");
+  if (chatTextArea.disabled) return;
   $('#text').val($('#text').val() + text);
   document.getElementById("text").focus();
 };
