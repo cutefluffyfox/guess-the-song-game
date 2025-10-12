@@ -55,6 +55,9 @@ TEXT_TO_EMOTE = {
     ':thevoices:': 'static/images/thevoices.avif',
     ':slopslop:': 'static/images/slopslop.webp',
     ':coco:': 'static/images/coco.gif',
+    ':california:': 'static/images/california-girls.gif',
+    ':dance:': 'static/images/dance.gif',
+    ':rat:': 'static/images/rat.gif',
 }
 
 USERNAME_COLORS = [
