@@ -64,6 +64,11 @@ def publish_clean_chat(messages: list[str], to: str):
     memory.save_game(GAME)
 
 
+def send_alert(message: str, to: str):
+    logger.info(f'SOCKET send-alert -> {message}')
+    emit('alert', {'text': message}, to=to)
+
+
 def show_user_permissions(username: str, to: str, request_username: str):
     logger.info(f'SOCKET show-user-permissions -> {username}')
     permissions = [
@@ -299,6 +304,32 @@ def check_permission(data):
 
     user = data['username']
     show_user_permissions(username=user, to=username, request_username=username)
+
+
+@socketio.on('alert', namespace='/room')
+def receive_alert(data):
+    global GAME
+
+    room = session.get('room')
+    username = session.get('username')
+
+    if not GAME.user_has_permission(username, permission='can_manage_users') and not GAME.user_has_permission(username, permission='can_moderate_chat'):
+        logger.error(f'API failed attempt to send-alert from user with no permission `{username}` | {GAME.get_user_permissions(username)} | {data}')
+        return
+    logger.info(f'API send-alert `{username}` -> `{data}`')
+
+    send_alert(message=data['text'], to=room)
+
+
+@socketio.on('change-color', namespace='/room')
+def change_color(data):
+    global GAME
+
+    username = session.get('username')
+
+    logger.info(f'API change-color `{username}` -> `{data}`')
+
+    GAME.change_color(username=username, hex_color=data['color'])
 
 
 @socketio.on('update-leaderboard', namespace='/room')

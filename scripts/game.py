@@ -81,6 +81,12 @@ class User:
     def is_online(self) -> bool:
         return self.permissions['is_online']
 
+    def set_color(self, hex_color: str):
+        if hex_color.startswith('#') and len(hex_color) == 7:
+            self.color = hex_color
+        else:
+            raise ValueError(f'Invalid hex color passed: {hex_color}')
+
     def add_submission(self, submission: Submission):
         if not self.get_permission('can_play'):
             raise UserManagementError('Attempted to add submission to a non-player')
@@ -213,6 +219,11 @@ class Game:
         if self.users.get(username) is None:
             return
         self.users[username].change_permissions(permissions=permissions)
+
+    def change_color(self, username: str, hex_color: str):
+        if self.users.get(username) is None:
+            return
+        self.users[username].set_color(hex_color=hex_color)
 
     def remove_user(self, username: str):
         if self.users.get(username):

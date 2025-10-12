@@ -1,5 +1,6 @@
 var socket;
 var canChangeLeaderboard = false;
+var currentUsername = '';
 
 
 $(document).ready(function(){
@@ -29,6 +30,8 @@ $(document).ready(function(){
       make_user_management_menu(data["username"], data["permissions"]);
   });
   socket.on('user-info', function(data) {
+      currentUsername = data["username"];
+
       $('#user-submissions').empty();
       $('#user-submissions').append('<h4 class="h4">~ Your guesses ~</h4>');
       for (const submission of data["submissions"]) {
@@ -64,6 +67,10 @@ $(document).ready(function(){
       // check change-stream permissions
       var streamChangeArea = document.getElementById("set-stream-menu");
       streamChangeArea.style.display = data["permissions"]["can_change_stream"] ? 'block' : 'none';
+
+      // set quite-button visibility
+      var quiteButton = document.getElementById("quite-button");
+      quiteButton.style.display = (data["permissions"]["can_manage_users"] || data["permissions"]["can_moderate_chat"]) ? 'block' : 'none';
 
       // check check-submissions permissions
       var chatArea = document.getElementById("chat");
@@ -143,6 +150,9 @@ $(document).ready(function(){
       if (document.getElementById('stream').src != link)
         document.getElementById('stream').src = link;
   });
+  socket.on('alert', function(data) {
+      alert(data["text"]);
+  });
   socket.on('clear-chat', function(data) {
       for (const msgId of data){
         var element = document.getElementById('msg_' + msgId);
@@ -217,6 +227,10 @@ function delete_message(blockId, allMessages, muteUser) {
   socket.emit('chat-action', {msg_id: blockId, all: allMessages, mute: muteUser});
 };
 
+function send_alert(message) {
+  socket.emit('alert', {text: message});
+};
+
 function set_permission(username, permission, value) {
   socket.emit('set-permission', {username: username, permission: permission, value: value});
 };
@@ -245,6 +259,10 @@ function make_user_management_menu(username, data) {
   for (const permission of data){
     $('#user-context-menu').append('<button onclick=set_permission(\"' + username + '\",\"' + permission["name"] + '\",' + !permission["value"] + ')>' + permission["name"] + ' : ' + permission["value"] + '</button>');
   }
+};
+
+function change_username_color(new_hex_color) {
+  socket.emit('change-color', {color: new_hex_color});
 };
 
 function set_score(username, submissionIdx) {

@@ -461,6 +461,11 @@ padding: 10px;
 color: white;
 }
 
+.color-input{
+    width: 80px;
+    height: 40px;
+}
+
 #prediction-submit:hover{
     background-color: #e533c1;
 }

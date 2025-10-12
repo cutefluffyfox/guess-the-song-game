@@ -45,6 +45,12 @@
       <div><button type="button" class="btn btn-danger button-leave-game" onclick=leave_room()>LEAVE GAME <span class="button_arrow">></span></button></div>
     </div>
     <div class="col-xl-8 col-min-width-100p-600px py-4 mt-5">
+<!--      <marquee direction="up" behavior="alternate" scrollamount="8" height="200">-->
+<!--        <marquee direction="left" behavior="alternate" scrollamount="20">-->
+<!--            GUESS THE SONG OR BE EATEN MONKSILLY-->
+<!--        </marquee>-->
+<!--      </marquee>-->
+
       <div class="mb-3">
         <iframe src="" id="stream" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope;"></iframe>
       </div>
@@ -145,6 +151,9 @@
             <button><img class="emo-ticon" src="{{ emote['link'] }}" title="{{ emote['keyword'] }}" onclick="add_emote('{{ emote['keyword'] }}');"></button>
           {% endfor %}
       </div>
+      <div align="center">
+        <button onclick="send_alert('Silence BOTTOMS :Smile:');" id="quite-button">Be quite plsbegging alert</button>
+      </div>
       <div id="submissions-menu">
         <h5 class="h5 text-shadow text-left">User submissions</h5>
         <div id="guesses">
@@ -204,6 +213,12 @@
 <!--        <button>{{ permission }} : {{ "yes" if permissions[permission] else "no" }} </button>-->
 <!--      {% endif %}-->
 <!--    {% endfor %}-->
+</div>
+
+
+<!--user moderation pop-up window-->
+<div id="color-selection-menu" style="display: none;">
+    <input type="color" class="color-input" id="username-color-input" name="Username color" value="#ff0000">
 </div>
 
 
