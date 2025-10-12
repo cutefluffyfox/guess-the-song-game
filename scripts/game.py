@@ -227,7 +227,7 @@ class Game:
 
     def remove_user(self, username: str):
         if self.users.get(username):
-            self.users[username].change_permissions(permissions={'is_online': False, 'can_play': False})
+            self.users[username].change_permissions(permissions={'is_online': False})
 
     def update_leaderboard(self, modification: dict[str, int], mode: str = 'add'):
         assert mode in {'add', 'set'}, 'Invalid mode type'
