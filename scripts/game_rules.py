@@ -5,11 +5,12 @@ POSSIBLE_SUBMITTERS = sorted([
 ])
 
 POSSIBLE_AUTHORS = sorted([
-    'Glass Moon Dance', 'Talking to myself', 'Do I Impress you', 'My Sacrifice', 'Jump', 'Blurt', 'I wanna be free', 'Try everything', 'God', 'Soldier of Heaven', 'Nevermore', 'Breeze', 'Tweedehands', 'Wheatus', 'If I were to die'
+    'Delta Goodrem', 'Camellia', 'JAMIL', 'YonKaGor', 'Aespa', 'Jamie Christopherson', 'Lovejoy', 'Kamelot', 'Vesyolye Rebyata', 'Sunrise Skater Kids', 'Mystery Skulls', 'Chris Christodoulou', 'Mikado', 'Hideki Naganuma', 'The scary joke', 'Mitsukiyo', 'Tyler, the creator'
 ])
 
 POSSIBLE_TITLES = sorted([
-    'Teenage Dirtbag', 'Clara Thomas', 'Pattern ft Shannon & Rieman', 'Mega Mango', 'YonKaGor', 'Blackpink', 'Panic ! At the disco', 'Joost Klein', 'Creed', 'Sabaton', 'Jake Daniels', 'Nelward', 'The Vanished People', 'Sasuke UK', 'Shakira'
+    'La belette', 'Crystallised', 'The Rock City Boy', 'Believe again', 'Ain\'t nothing like a funky beat', 'Homeless Millenial', 'Darling, I', 'Linger in the rain', 
+    'For the last time', 'Freaking out', 'The green letter', 'Is that me ??', 'When the lights are down', 'Believe again', 'Coalescence', 'It has to be this way', 'Hold on tight', 'With Rob as my witness'
 ])
 
 # DEFAULT_IFRAME_LINK = 'https://sketchfab.com/models/befbb2c422fc4b92aecae8c5114967e9/embed?autostart=1&internal=1&tracking=0&ui_infos=0&ui_snapshots=1&ui_stop=0&ui_watermark=0'
