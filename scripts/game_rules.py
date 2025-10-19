@@ -1,16 +1,17 @@
 MAX_SUBMISSION_COUNT = 3
 
 POSSIBLE_SUBMITTERS = sorted([
-    'CuteFluffyFox', 'yeouryl', 'Voice', 'Coconought', 'Potato', 'Ehtomit', 'Komider', 'Wizzet', 'SkyfallStar', 'Laya', 'Thires', 'AryaHimself', 'CocoBeansies', 'Dweamy'
+    'CuteFluffyFox', 'yeouryl', 'Voice', 'Coconought', 'Potato', 'Ehtomit', 'Komider', 'Wizzet', 'SkyfallStar', 'Laya', 'Thires', 'AryaHimself', 'CocoBeansies', 'Dweamy', 'Queen', 'CocoBeansies', 'Mask', 'Leonyardo'
 ])
 
 POSSIBLE_AUTHORS = sorted([
-    'Delta Goodrem', 'Camellia', 'JAMIL', 'YonKaGor', 'Aespa', 'Jamie Christopherson', 'Lovejoy', 'Kamelot', 'Vesyolye Rebyata', 'Sunrise Skater Kids', 'Mystery Skulls', 'Chris Christodoulou', 'Mikado', 'Hideki Naganuma', 'The scary joke', 'Mitsukiyo', 'Tyler, the creator'
+    'Delta Goodrem', 'Camellia', 'JAMIL', 'YonKaGor', 'Aespa', 'Jamie Christopherson', 'Lovejoy', 'Kamelot', 'Vesyolye Rebyata', 'Sunrise Skater Kids', 'Mystery Skulls', 
+    'Chris Christodoulou', 'Mikado', 'Hideki Naganuma', 'The scary joke', 'Mitsukiyo', 'Tyler, the creator'
 ])
 
 POSSIBLE_TITLES = sorted([
     'La belette', 'Crystallised', 'The Rock City Boy', 'Believe again', 'Ain\'t nothing like a funky beat', 'Homeless Millenial', 'Darling, I', 'Linger in the rain', 
-    'For the last time', 'Freaking out', 'The green letter', 'Is that me ??', 'When the lights are down', 'Believe again', 'Coalescence', 'It has to be this way', 'Hold on tight', 'With Rob as my witness'
+    'For the last time', 'Freaking out', 'The green letter', 'Is that me ??', 'When the lights are down', 'Coalescence', 'It has to be this way', 'Hold on tight', 'With Rob as my witness'
 ])
 
 # DEFAULT_IFRAME_LINK = 'https://sketchfab.com/models/befbb2c422fc4b92aecae8c5114967e9/embed?autostart=1&internal=1&tracking=0&ui_infos=0&ui_snapshots=1&ui_stop=0&ui_watermark=0'
