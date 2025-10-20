@@ -1,7 +1,7 @@
 MAX_SUBMISSION_COUNT = 3
 
 POSSIBLE_SUBMITTERS = sorted([
-    'CuteFluffyFox', 'yeouryl', 'Voice', 'Coconought', 'Potato', 'Ehtomit', 'Komider', 'Wizzet', 'SkyfallStar', 'Laya', 'Thires', 'AryaHimself', 'CocoBeansies', 'Dweamy', 'Queen', 'CocoBeansies', 'Mask', 'Leonyardo'
+    'CuteFluffyFox', 'yeouryl', 'Voice', 'Coconought', 'Potato', 'Ehtomit', 'Komider', 'Wizzet', 'SkyfallStar', 'Laya', 'Thires', 'AryaHimself', 'Dweamy', 'Queen', 'CocoBeansies', 'Mask', 'Leonyardo'
 ])
 
 POSSIBLE_AUTHORS = sorted([
