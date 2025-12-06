@@ -1,17 +1,19 @@
 MAX_SUBMISSION_COUNT = 3
 
 POSSIBLE_SUBMITTERS = sorted([
-    'Ckcky', 'Komider', 'Yeo', 'Fluffy', 'Thires', 'Voice', 'SkyfallStar', 'Leonyardo', 'Potato', 'CocoBeansies', 'Laya', 'Wizzet', 'Coconaught', 'Ethomit', 'Arya', 'Queen', 'Thires'
+    'Komider', 'Yeo', 'Fluffy', 'Thires', 'Voice', 'SkyfallStar', 'Leonyardo', 'CocoBeansies', 
+    'Laya', 'Wizzet', 'Guh', 'Coconaught', 'Ethomit', 'Arya', 'Queen'
 ])
 
 POSSIBLE_AUTHORS = sorted([
-    'Kn1ght', 'Glyde', 'Dad Feels', 'Exmortus', 'Metallica', 'Mariah Carrey', 'Nel Cicierega', 'Bring me the Horizon', 'Empire of a sun', 
-    'Natori', 'Starset', 'Beck ft Robyn & the lonely island', 'Parov Stelar', 'Glass beach', 'Jonathan Bree', 'Jude York'
+    'Shoko Nakagawa', 'Nelward', 'Aurora', 'Red Velvet', 'Will Wood', 'Lil Baby', 'Christina Perri', 'Gorillaz', 
+    'Gloryhammer', 'Jamie Paige', 'Paramore', 'Charles Leclerc', 'Dalida', 'Metallica', 'Arxx'
 ])
 
 POSSIBLE_TITLES = sorted([
-    'Something Memorable', 'Overdose', 'Cold Weather', 'Infinite', '72 Seasons', 'Catgroove', 'Moonlight Sonata', '300MB', 'You’re so cool', 
-    'All I want for christmas is you', 'Can’t be stopped', 'Kingslayer', 'Super cool', 'Walking on a dream', 'Monsters', 'Those were the days'
+    'Cosmic', 'Sorairo Days (Tengen Toppa Gurren Lagann OST)', 'I / Me / Myself', 'Drugs Talkin', 'a thousand years', 
+    'He has returned', 'Warrior', 'Mia23', 'Ride or die' ,'Ignorance', 'Machine love', 'Monday, tuesday … laissez moi danser', 
+    'Smash Thru', 'Master of puppets', 'On Melancholy hill' 
 ])
 
 # DEFAULT_IFRAME_LINK = 'https://sketchfab.com/models/befbb2c422fc4b92aecae8c5114967e9/embed?autostart=1&internal=1&tracking=0&ui_infos=0&ui_snapshots=1&ui_stop=0&ui_watermark=0'
